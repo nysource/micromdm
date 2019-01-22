@@ -2,7 +2,6 @@ package config
 
 import (
 	"context"
-	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"github.com/satori/go.uuid"
@@ -14,23 +13,18 @@ import (
 )
 
 func (svc *ConfigService) ApplyVPPToken(ctx context.Context, token_Content []byte) error {
-	// Decode the sToken
-	var sToken = string(token_Content)
-	decoded, err := base64.StdEncoding.DecodeString(sToken)
+
+	// Save the data to an SToken
+	var sToken SToken
+	err := json.NewDecoder(strings.NewReader(string(token_Content))).Decode(&sToken)
 	if err != nil {
 		return err
 	}
 
-	// Save the data to a VPPToken
+	// Create VPPToken with a UDID for ClientContext tracking
 	var vppToken VPPToken
-	err = json.NewDecoder(strings.NewReader(string(decoded))).Decode(&vppToken)
-	if err != nil {
-		return err
-	}
-	// Save the full sToken string
-	vppToken.SToken = sToken
-	// Create a UDID for ClientContext tracking
 	vppToken.UDID = uuid.NewV4().String()
+	vppToken.SToken = sToken
 
 	// Convert to JSON
 	tokenJSON, err := json.Marshal(vppToken)
@@ -39,11 +33,11 @@ func (svc *ConfigService) ApplyVPPToken(ctx context.Context, token_Content []byt
 	}
 
 	// Save the token
-	err = svc.store.AddVPPToken(vppToken.SToken, tokenJSON)
+	err = svc.store.AddVPPToken(vppToken.SToken.Token, tokenJSON)
 	if err != nil {
 		return err
 	}
-	fmt.Println("stored VPP token", vppToken.SToken)
+	fmt.Println("stored VPP token", vppToken.SToken.Token)
 	return nil
 }
 
