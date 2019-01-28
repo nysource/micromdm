@@ -28,7 +28,7 @@ func (c *Client) GetVPPAssetsSrv() (*VPPAssetsSrv, error) {
 	request := struct {
 		SToken string `json:"sToken"`
 	}{
-		SToken: c.SToken,
+		SToken: c.VPPToken.SToken,
 	}
 
 	// Get the VPPAssetsSrvURL

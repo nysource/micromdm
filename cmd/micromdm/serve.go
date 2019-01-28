@@ -37,6 +37,7 @@ import (
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
+	vppapi "github.com/micromdm/micromdm/platform/vpp"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
@@ -178,6 +179,7 @@ func serve(args []string) error {
 	httpLogger := log.With(logger, "transport", "http")
 
 	dc := sm.DEPClient
+	vc := sm.VPPClient
 	appDB := &appsbuiltin.Repo{Path: *flRepoPath}
 
 	scepEndpoints := scep.MakeServerEndpoints(sm.SCEPService)
@@ -248,6 +250,12 @@ func serve(args []string) error {
 
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+
+		// Add VPP SVC
+		vppsvc := vppapi.New(vc, sm.PubClient)
+		vppsvc.Run()
+		vppEndpoints := vppapi.MakeServerEndpoints(vppsvc, basicAuthEndpointMiddleware)
+		vppapi.RegisterHTTPHandlers(r, vppEndpoints, options...)
 
 		r.HandleFunc("/boltbackup", httputil2.RequireBasicAuth(boltBackup(sm.DB), "micromdm", *flAPIKey, "micromdm"))
 	} else {

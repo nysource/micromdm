@@ -3,6 +3,7 @@ package config
 import (
 	//"time"
 	"encoding/json"
+	"encoding/base64"
 	"github.com/micromdm/micromdm/vpp"
 )
 
@@ -20,6 +21,7 @@ type SToken struct {
 }
 
 // create a VPP client from token.
+//func (tok VPPToken) Client() (*vpp.Client, error) {
 func (tok VPPToken) Client() (*vpp.Client, error) {
 
 	// Convert to JSON
@@ -27,13 +29,18 @@ func (tok VPPToken) Client() (*vpp.Client, error) {
 	if err != nil {
 		return nil, err
 	}
+	// Encode Base64
+	sToken := base64.StdEncoding.EncodeToString(tokenJSON)
 
 	conf := vpp.VPPToken{
 		UDID:    tok.UDID,
-		SToken:  tokenJSON,
+		SToken:  sToken,
 	}
 
-	client, err := vpp.NewClient(conf)
+	// Figure out how to get the real URL
+	serverUrl := ""
+	
+	client, err := vpp.NewClient(conf, serverUrl)
 	if err != nil {
 		return nil, err
 	}

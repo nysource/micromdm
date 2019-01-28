@@ -59,7 +59,7 @@ func (c *Client) DisassociateSerialsToApp(appID string, serials []string) (*Mana
 
 // Interfaces with the ManageVPPLicensesByAdamIdSrv to managed VPP licenses
 func (c *Client) ManageVPPLicensesByAdamIdSrv(appID string, options ManageVPPLicensesByAdamIdSrvOptions) (ManageVPPLicensesByAdamIdSrv, error) {
-	options.SToken = c.SToken
+	options.SToken = c.VPPToken.SToken
 	options.AdamIDStr = appID
 
 	// Get the pricing param required to manage a vpp license

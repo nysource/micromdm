@@ -29,9 +29,21 @@ type Error struct {
 	ErrorNumber  int    `json:"errorNumber"`
 }
 
-func (c *Client) GetVPPServiceConfigSrv() (*VPPServiceConfigSrv, error) {
+type VPPServiceConfigSrvOptions struct {
+	SToken string `json:"sToken"`
+}
+
+//func (c *Client) GetVPPServiceConfigSrv() (*VPPServiceConfigSrv, error) {
+func (c *Client) GetVPPServiceConfigSrv(options VPPServiceConfigSrvOptions) (*VPPServiceConfigSrv, error) {
+
+	if options.SToken == "" {
+		options.SToken = c.VPPToken.SToken
+	}
+
 	var response VPPServiceConfigSrv
-	req, err := c.newRequest("GET", c.BaseURL.String(), nil)
+
+	//req, err := c.newRequest("GET", c.BaseURL.String(), request)
+	req, err := c.newRequest("GET", c.BaseURL.String(), options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")
 	}

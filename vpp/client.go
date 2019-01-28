@@ -3,7 +3,6 @@ package vpp
 import (
 	"bytes"
 	"encoding/json"
-	"encoding/base64"
 	"io/ioutil"
 	"net/http"
 	"net/url"
@@ -14,8 +13,6 @@ import (
 var version = "dev"
 
 const (
-	serverURL = "https://your.server.com" // This needs to be modified to be imported from server
-
 	defaultBaseURL               = "https://vpp.itunes.apple.com/WebObjects/MZFinance.woa/wa/VPPServiceConfigSrv"
 	mediaType                    = "application/json;charset=UTF8"
 	XServerProtocolVersionHeader = "X-Server-Protocol-Version"
@@ -26,11 +23,9 @@ type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
-// Contains the sToken string used to authenticate to the various VPP services
-// Contains the return VPPServiceConfigSrv information
 type Client struct {
-	UDID								string
-	SToken              string
+	VPPToken						VPPToken
+	ServerPublicURL     string
 	VPPServiceConfigSrv *VPPServiceConfigSrv
 	UserAgent           string
 	Client              HTTPClient
@@ -39,40 +34,32 @@ type Client struct {
 
 type VPPToken struct {
 	UDID    string `json:"udid"`
-	SToken  []byte `json:"sToken"`
+	SToken  string `json:"sToken"`
 }
 
-func NewClient(vppToken VPPToken) (*Client, error) {
-
-	sToken := base64.StdEncoding.EncodeToString(vppToken.SToken)
+func NewClient(token VPPToken, serverUrl string) (*Client, error) {
 
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := Client{
-		UDID:      vppToken.UDID,
-		SToken:    sToken,
-		UserAgent: path.Join("micromdm", version),
-		Client:    http.DefaultClient,
-		BaseURL:   baseURL,
+		VPPToken:         token,
+		ServerPublicURL:  serverUrl,
+		UserAgent:        path.Join("micromdm", version),
+		Client:           http.DefaultClient,
+		BaseURL:          baseURL,
 	}
 
 	// Get VPPServiceConfigSrv Data
-	VPPServiceConfigSrv, err := c.GetVPPServiceConfigSrv()
+	options := VPPServiceConfigSrvOptions{SToken: c.VPPToken.SToken}
+
+	VPPServiceConfigSrv, err := c.GetVPPServiceConfigSrv(options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")
 	}
 	c.VPPServiceConfigSrv = VPPServiceConfigSrv
 
-	// Set Client Context If Needed
-	context, err := c.GetClientContext()
+	err = c.ConfigureClientContext()
 	if err != nil {
-		return nil, errors.Wrap(err, "GetClientContext request")
-	}
-
-	if context.HostName != serverURL {
-		_, err := c.SetClientContext(serverURL)
-		if err != nil {
-			return nil, errors.Wrap(err, "SetClientContext request")
-		}
+		return nil, errors.Wrap(err, "configure ClientContext")
 	}
 
 	return &c, nil
