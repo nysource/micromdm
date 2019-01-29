@@ -7,8 +7,8 @@ import (
 
 	"github.com/go-kit/kit/endpoint"
 
-	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/pkg/httputil"
+	"github.com/micromdm/micromdm/vpp"
 )
 
 func (svc *VPPService) GetVPPServiceConfigSrv(ctx context.Context, options vpp.VPPServiceConfigSrvOptions) (*vpp.VPPServiceConfigSrv, error) {

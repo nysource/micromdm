@@ -4,12 +4,11 @@ import (
 	"context"
 	"errors"
 	"net/http"
-	//"fmt"
 
 	"github.com/go-kit/kit/endpoint"
 
-	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/pkg/httputil"
+	"github.com/micromdm/micromdm/vpp"
 )
 
 func (svc *VPPService) GetLicensesSrv(ctx context.Context, options vpp.LicensesSrvOptions) (*vpp.LicensesSrv, error) {
@@ -28,8 +27,14 @@ func (r getLicensesSrvResponse) Failed() error { return r.Err }
 
 func decodeGetLicensesSrvRequest(ctx context.Context, r *http.Request) (interface{}, error) {
 	var req vpp.LicensesSrvOptions
-	err := httputil.DecodeJSONRequest(r, &req)
-	return req, err
+
+	switch r.Method {
+	case "POST":
+		err := httputil.DecodeJSONRequest(r, &req)
+		return req, err
+	default:
+		return req, nil
+	}
 }
 
 func decodeGetLicensesSrvResponse(_ context.Context, r *http.Response) (interface{}, error) {

@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"net/url"
 	"path"
+
 	"github.com/pkg/errors"
 )
 
@@ -24,7 +25,7 @@ type HTTPClient interface {
 }
 
 type Client struct {
-	VPPToken						VPPToken
+	VPPToken            VPPToken
 	ServerPublicURL     string
 	VPPServiceConfigSrv *VPPServiceConfigSrv
 	UserAgent           string
@@ -33,19 +34,19 @@ type Client struct {
 }
 
 type VPPToken struct {
-	UDID    string `json:"udid"`
-	SToken  string `json:"sToken"`
+	UDID   string `json:"udid"`
+	SToken string `json:"sToken"`
 }
 
 func NewClient(token VPPToken, serverUrl string) (*Client, error) {
 
 	baseURL, _ := url.Parse(defaultBaseURL)
 	c := Client{
-		VPPToken:         token,
-		ServerPublicURL:  serverUrl,
-		UserAgent:        path.Join("micromdm", version),
-		Client:           http.DefaultClient,
-		BaseURL:          baseURL,
+		VPPToken:        token,
+		ServerPublicURL: serverUrl,
+		UserAgent:       path.Join("micromdm", version),
+		Client:          http.DefaultClient,
+		BaseURL:         baseURL,
 	}
 
 	// Get VPPServiceConfigSrv Data
@@ -57,7 +58,7 @@ func NewClient(token VPPToken, serverUrl string) (*Client, error) {
 	}
 	c.VPPServiceConfigSrv = VPPServiceConfigSrv
 
-	err = c.ConfigureClientContext()
+	err = c.ConfigureClientContext(ClientConfigSrvOptions{})
 	if err != nil {
 		return nil, errors.Wrap(err, "configure ClientContext")
 	}

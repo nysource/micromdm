@@ -37,7 +37,6 @@ import (
 	"github.com/micromdm/micromdm/platform/command"
 	"github.com/micromdm/micromdm/platform/config"
 	depapi "github.com/micromdm/micromdm/platform/dep"
-	vppapi "github.com/micromdm/micromdm/platform/vpp"
 	"github.com/micromdm/micromdm/platform/dep/sync"
 	"github.com/micromdm/micromdm/platform/device"
 	devicebuiltin "github.com/micromdm/micromdm/platform/device/builtin"
@@ -45,6 +44,7 @@ import (
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
+	vppapi "github.com/micromdm/micromdm/platform/vpp"
 	"github.com/micromdm/micromdm/server"
 )
 

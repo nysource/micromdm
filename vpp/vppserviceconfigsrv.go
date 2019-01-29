@@ -30,10 +30,9 @@ type Error struct {
 }
 
 type VPPServiceConfigSrvOptions struct {
-	SToken string `json:"sToken"`
+	SToken string `json:"sToken,omitempty"`
 }
 
-//func (c *Client) GetVPPServiceConfigSrv() (*VPPServiceConfigSrv, error) {
 func (c *Client) GetVPPServiceConfigSrv(options VPPServiceConfigSrvOptions) (*VPPServiceConfigSrv, error) {
 
 	if options.SToken == "" {
@@ -42,7 +41,6 @@ func (c *Client) GetVPPServiceConfigSrv(options VPPServiceConfigSrvOptions) (*VP
 
 	var response VPPServiceConfigSrv
 
-	//req, err := c.newRequest("GET", c.BaseURL.String(), request)
 	req, err := c.newRequest("GET", c.BaseURL.String(), options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")

@@ -4,8 +4,8 @@ import (
 	"context"
 	"sync"
 
-	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/platform/pubsub"
+	"github.com/micromdm/micromdm/vpp"
 )
 
 type Service interface {

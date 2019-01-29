@@ -34,16 +34,16 @@ type License struct {
 
 // Contains LicensesSrv request options
 type LicensesSrvOptions struct {
-	BatchToken					string	`json:"batchToken,omitempty"`
-	SinceModifiedToken	string	`json:"sinceModifiedToken,omitempty"`
-	AdamID							string	`json:"adamId,omitempty"`
-	SToken							string	`json:"sToken,omitempty"`
-	FacilitatorMemberID	string	`json:"facilitatorMemberId,omitempty"`
-	AssignedOnly				bool		`json:"assignedOnly,omitempty"`
-	PricingParam				string	`json:"pricingParam,omitempty"`
-	SerialNumber 				string  `json:"serialNumber,omitempty"`
-	UserAssignedOnly		bool		`json:"userAssignedOnly,omitempty"`
-	DeviceAssignedOnly	bool		`json:"deviceAssignedOnly,omitempty"`
+	BatchToken          string `json:"batchToken,omitempty"`
+	SinceModifiedToken  string `json:"sinceModifiedToken,omitempty"`
+	AdamID              string `json:"adamId,omitempty"`
+	SToken              string `json:"sToken,omitempty"`
+	FacilitatorMemberID string `json:"facilitatorMemberId,omitempty"`
+	AssignedOnly        bool   `json:"assignedOnly,omitempty"`
+	PricingParam        string `json:"pricingParam,omitempty"`
+	SerialNumber        string `json:"serialNumber,omitempty"`
+	UserAssignedOnly    bool   `json:"userAssignedOnly,omitempty"`
+	DeviceAssignedOnly  bool   `json:"deviceAssignedOnly,omitempty"`
 }
 
 // Gets the LicensesSrv information
@@ -51,7 +51,7 @@ func (c *Client) GetLicensesSrv(options LicensesSrvOptions) (*LicensesSrv, error
 
 	if options.SToken == "" {
 		options.SToken = c.VPPToken.SToken
-  }
+	}
 
 	// Get the LicensesSrvURL
 	licensesSrvURL := c.VPPServiceConfigSrv.GetLicensesSrvURL
@@ -74,7 +74,7 @@ func (c *Client) CheckAssignedLicense(serial string, appID string) (bool, error)
 
 	options := LicensesSrvOptions{
 		SerialNumber: serial,
-		AdamID:				appID,
+		AdamID:       appID,
 	}
 
 	// Get all licenses with serial and appID associated

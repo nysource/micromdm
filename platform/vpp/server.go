@@ -9,23 +9,29 @@ import (
 )
 
 type Endpoints struct {
-	GetLicensesSrvEndpoint    		endpoint.Endpoint
-	GetVPPServiceConfigSrvEndpoint   endpoint.Endpoint
+	GetLicensesSrvEndpoint         endpoint.Endpoint
+	GetVPPServiceConfigSrvEndpoint endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
 		GetLicensesSrvEndpoint:         endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
-		GetVPPServiceConfigSrvEndpoint:   endpoint.Chain(outer, others...)(MakeGetVPPServiceConfigSrvEndpoint(s)),
+		GetVPPServiceConfigSrvEndpoint: endpoint.Chain(outer, others...)(MakeGetVPPServiceConfigSrvEndpoint(s)),
 	}
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// POST		/v1/vpp/apps		              list all vpp apps
-	// PUT		/v1/vpp/apps			            assign or unassign device licenses
-	// POST		/v1/vpp/licensessrv		        list all vpp licenses
+	// GET		/v1/vpp/licensessrv		        list all vpp licenses
+	// POST		/v1/vpp/licensessrv		        list all vpp licenses with options
 	// GET		/v1/vpp/vppserviceconfigsrv		get vppserviceconfigsrv information
 	// POST		/v1/vpp/vppserviceconfigsrv		get vppserviceconfigsrv information for specific sToken
+
+	r.Methods("GET").Path("/v1/vpp/licensessrv").Handler(httptransport.NewServer(
+		e.GetLicensesSrvEndpoint,
+		decodeGetLicensesSrvRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
 
 	r.Methods("POST").Path("/v1/vpp/licensessrv").Handler(httptransport.NewServer(
 		e.GetLicensesSrvEndpoint,
@@ -34,14 +40,14 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 		options...,
 	))
 
-	r.Methods("GET").Path("/v1/vpp/vppserviceconfigsrv").Handler(httptransport.NewServer(
+	r.Methods("GET").Path("/v1/vpp/serviceconfigsrv").Handler(httptransport.NewServer(
 		e.GetVPPServiceConfigSrvEndpoint,
 		decodeGetVPPServiceConfigSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
-	r.Methods("POST").Path("/v1/vpp/vppserviceconfigsrv").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/vpp/serviceconfigsrv").Handler(httptransport.NewServer(
 		e.GetVPPServiceConfigSrvEndpoint,
 		decodeGetVPPServiceConfigSrvRequest,
 		httputil.EncodeJSONResponse,

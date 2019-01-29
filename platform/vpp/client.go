@@ -30,8 +30,8 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var getVPPServiceConfigSrvEndpoint endpoint.Endpoint
 	{
 		getVPPServiceConfigSrvEndpoint = httptransport.NewClient(
-			"GET",
-			httputil.CopyURL(u, "/v1/vpp/vppserviceconfigsrv"),
+			"POST",
+			httputil.CopyURL(u, "/v1/vpp/serviceconfigsrv"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetVPPServiceConfigSrvResponse,
 			opts...,
@@ -39,7 +39,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	}
 
 	return Endpoints{
-		GetLicensesSrvEndpoint:    		  getLicensesSrvEndpoint,
-		GetVPPServiceConfigSrvEndpoint:   getVPPServiceConfigSrvEndpoint,
+		GetLicensesSrvEndpoint:         getLicensesSrvEndpoint,
+		GetVPPServiceConfigSrvEndpoint: getVPPServiceConfigSrvEndpoint,
 	}, nil
 }

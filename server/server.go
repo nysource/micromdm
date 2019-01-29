@@ -3,12 +3,12 @@ package server
 import (
 	"context"
 	"crypto/x509"
+	"encoding/base64"
+	"encoding/json"
 	"net/http"
 	"net/url"
 	"path/filepath"
 	"time"
-	"encoding/json"
-	"encoding/base64"
 
 	"github.com/boltdb/bolt"
 	"github.com/go-kit/kit/log"
@@ -18,7 +18,6 @@ import (
 	"github.com/pkg/errors"
 
 	"github.com/micromdm/micromdm/dep"
-	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/mdm"
 	"github.com/micromdm/micromdm/mdm/enroll"
 	"github.com/micromdm/micromdm/platform/apns"
@@ -37,6 +36,7 @@ import (
 	"github.com/micromdm/micromdm/platform/queue"
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/workflow/webhook"
 )
 
@@ -306,7 +306,7 @@ func (c *Server) setupDepClient() error {
 
 func (c *Server) setupVppClient() error {
 	var (
-		token					 vpp.VPPToken
+		token          vpp.VPPToken
 		hasTokenConfig bool
 		//opts           []vpp.Option
 	)
