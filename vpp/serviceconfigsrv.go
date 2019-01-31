@@ -3,7 +3,7 @@ package vpp
 import "github.com/pkg/errors"
 
 // Contains the most recent data from Apple for configuring vpp
-type VPPServiceConfigSrv struct {
+type ServiceConfigSrv struct {
 	EditUserSrvURL                   string  `json:"editUserSrvUrl"`
 	DisassociateLicenseSrvURL        string  `json:"disassociateLicenseSrvUrl"`
 	ContentMetadataLookupURL         string  `json:"contentMetadataLookupUrl"`
@@ -29,17 +29,17 @@ type Error struct {
 	ErrorNumber  int    `json:"errorNumber"`
 }
 
-type VPPServiceConfigSrvOptions struct {
+type ServiceConfigSrvOptions struct {
 	SToken string `json:"sToken,omitempty"`
 }
 
-func (c *Client) GetVPPServiceConfigSrv(options VPPServiceConfigSrvOptions) (*VPPServiceConfigSrv, error) {
+func (c *Client) GetServiceConfigSrv(options ServiceConfigSrvOptions) (*ServiceConfigSrv, error) {
 
 	if options.SToken == "" {
 		options.SToken = c.VPPToken.SToken
 	}
 
-	var response VPPServiceConfigSrv
+	var response ServiceConfigSrv
 
 	req, err := c.newRequest("GET", c.BaseURL.String(), options)
 	if err != nil {

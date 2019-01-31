@@ -44,6 +44,7 @@ type LicensesSrvOptions struct {
 	SerialNumber        string `json:"serialNumber,omitempty"`
 	UserAssignedOnly    bool   `json:"userAssignedOnly,omitempty"`
 	DeviceAssignedOnly  bool   `json:"deviceAssignedOnly,omitempty"`
+	OverrideIndex       int    `json:"overrideIndex,omitempty"`
 }
 
 // Gets the LicensesSrv information
@@ -54,7 +55,7 @@ func (c *Client) GetLicensesSrv(options LicensesSrvOptions) (*LicensesSrv, error
 	}
 
 	// Get the LicensesSrvURL
-	licensesSrvURL := c.VPPServiceConfigSrv.GetLicensesSrvURL
+	licensesSrvURL := c.ServiceConfigSrv.GetLicensesSrvURL
 
 	// Create the LicensesSrv request
 	req, err := c.newRequest("POST", licensesSrvURL, options)
