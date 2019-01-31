@@ -253,7 +253,7 @@ func serve(args []string) error {
 
 		// Add VPP SVC
 		vppsvc := vppapi.New(vc, sm.PubClient)
-		vppsvc.Run()
+		vppsvc.Run(sm.ServerPublicURL)
 		vppEndpoints := vppapi.MakeServerEndpoints(vppsvc, basicAuthEndpointMiddleware)
 		vppapi.RegisterHTTPHandlers(r, vppEndpoints, options...)
 

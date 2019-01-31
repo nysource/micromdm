@@ -1,7 +1,6 @@
 package config
 
 import (
-	//"time"
 	"encoding/base64"
 	"encoding/json"
 
@@ -22,7 +21,7 @@ type SToken struct {
 }
 
 // create a VPP client from token.
-func (tok VPPToken) Client() (*vpp.Client, error) {
+func (tok VPPToken) Client(serverURL string) (*vpp.Client, error) {
 
 	// Convert to JSON
 	tokenJSON, err := json.Marshal(tok.SToken)
@@ -37,10 +36,7 @@ func (tok VPPToken) Client() (*vpp.Client, error) {
 		SToken: sToken,
 	}
 
-	// Figure out how to get the real URL
-	serverUrl := ""
-
-	client, err := vpp.NewClient(conf, serverUrl)
+	client, err := vpp.NewClient(conf, serverURL)
 	if err != nil {
 		return nil, err
 	}
