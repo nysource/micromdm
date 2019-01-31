@@ -9,47 +9,75 @@ import (
 )
 
 type Endpoints struct {
-	GetLicensesSrvEndpoint         endpoint.Endpoint
-	GetVPPServiceConfigSrvEndpoint endpoint.Endpoint
+	GetAssetsSrvEndpoint                 endpoint.Endpoint
+	GetLicensesSrvEndpoint               endpoint.Endpoint
+	ManageVPPLicensesByAdamIdSrvEndpoint endpoint.Endpoint
+	GetServiceConfigSrvEndpoint          endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
-		GetLicensesSrvEndpoint:         endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
-		GetVPPServiceConfigSrvEndpoint: endpoint.Chain(outer, others...)(MakeGetVPPServiceConfigSrvEndpoint(s)),
+		GetAssetsSrvEndpoint:                 endpoint.Chain(outer, others...)(MakeGetAssetsSrvEndpoint(s)),
+		GetLicensesSrvEndpoint:               endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
+		ManageVPPLicensesByAdamIdSrvEndpoint: endpoint.Chain(outer, others...)(MakeManageVPPLicensesByAdamIdSrvEndpoint(s)),
+		GetServiceConfigSrvEndpoint:          endpoint.Chain(outer, others...)(MakeGetServiceConfigSrvEndpoint(s)),
 	}
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// GET		/v1/vpp/licensessrv		        list all vpp licenses
-	// POST		/v1/vpp/licensessrv		        list all vpp licenses with options
-	// GET		/v1/vpp/vppserviceconfigsrv		get vppserviceconfigsrv information
-	// POST		/v1/vpp/vppserviceconfigsrv		get vppserviceconfigsrv information for specific sToken
+	// GET		/v1/vpp/assets	        list all vpp assets
+	// POST		/v1/vpp/assets		      list all vpp assets with options
+	// GET		/v1/vpp/licenses		    list all vpp licenses
+	// POST		/v1/vpp/licenses		    list all vpp licenses with options
+	// PUT		/v1/vpp/licenses				manage vpp licenses
+	// GET		/v1/vpp/serviceconfig		get vpp service config information
+	// POST		/v1/vpp/serviceconfig		get vpp service config information for specific sToken
 
-	r.Methods("GET").Path("/v1/vpp/licensessrv").Handler(httptransport.NewServer(
+	r.Methods("GET").Path("/v1/vpp/assets").Handler(httptransport.NewServer(
+		e.GetAssetsSrvEndpoint,
+		decodeGetAssetsSrvRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
+
+	r.Methods("POST").Path("/v1/vpp/assets").Handler(httptransport.NewServer(
+		e.GetAssetsSrvEndpoint,
+		decodeGetAssetsSrvRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
+
+	r.Methods("GET").Path("/v1/vpp/licenses").Handler(httptransport.NewServer(
 		e.GetLicensesSrvEndpoint,
 		decodeGetLicensesSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
-	r.Methods("POST").Path("/v1/vpp/licensessrv").Handler(httptransport.NewServer(
+	r.Methods("POST").Path("/v1/vpp/licenses").Handler(httptransport.NewServer(
 		e.GetLicensesSrvEndpoint,
 		decodeGetLicensesSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
-	r.Methods("GET").Path("/v1/vpp/serviceconfigsrv").Handler(httptransport.NewServer(
-		e.GetVPPServiceConfigSrvEndpoint,
-		decodeGetVPPServiceConfigSrvRequest,
+	r.Methods("PUT").Path("/v1/vpp/licenses").Handler(httptransport.NewServer(
+		e.ManageVPPLicensesByAdamIdSrvEndpoint,
+		decodeManageVPPLicensesByAdamIdSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
-	r.Methods("POST").Path("/v1/vpp/serviceconfigsrv").Handler(httptransport.NewServer(
-		e.GetVPPServiceConfigSrvEndpoint,
-		decodeGetVPPServiceConfigSrvRequest,
+	r.Methods("GET").Path("/v1/vpp/serviceconfig").Handler(httptransport.NewServer(
+		e.GetServiceConfigSrvEndpoint,
+		decodeGetServiceConfigSrvRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
+
+	r.Methods("POST").Path("/v1/vpp/serviceconfig").Handler(httptransport.NewServer(
+		e.GetServiceConfigSrvEndpoint,
+		decodeGetServiceConfigSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))

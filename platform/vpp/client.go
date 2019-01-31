@@ -16,30 +16,54 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		return nil, err
 	}
 
+	var getAssetsSrvEndpoint endpoint.Endpoint
+	{
+		getAssetsSrvEndpoint = httptransport.NewClient(
+			"POST",
+			httputil.CopyURL(u, "/v1/vpp/assets"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeGetAssetsSrvResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	var getLicensesSrvEndpoint endpoint.Endpoint
 	{
 		getLicensesSrvEndpoint = httptransport.NewClient(
 			"POST",
-			httputil.CopyURL(u, "/v1/vpp/licensessrv"),
+			httputil.CopyURL(u, "/v1/vpp/licenses"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetLicensesSrvResponse,
 			opts...,
 		).Endpoint()
 	}
 
-	var getVPPServiceConfigSrvEndpoint endpoint.Endpoint
+	var manageVPPLicensesByAdamIdSrvEndpoint endpoint.Endpoint
 	{
-		getVPPServiceConfigSrvEndpoint = httptransport.NewClient(
-			"POST",
-			httputil.CopyURL(u, "/v1/vpp/serviceconfigsrv"),
+		manageVPPLicensesByAdamIdSrvEndpoint = httptransport.NewClient(
+			"PUT",
+			httputil.CopyURL(u, "/v1/vpp/licenses"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
-			decodeGetVPPServiceConfigSrvResponse,
+			decodeManageVPPLicensesByAdamIdSrvResponse,
+			opts...,
+		).Endpoint()
+	}
+
+	var getServiceConfigSrvEndpoint endpoint.Endpoint
+	{
+		getServiceConfigSrvEndpoint = httptransport.NewClient(
+			"POST",
+			httputil.CopyURL(u, "/v1/vpp/serviceconfig"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeGetServiceConfigSrvResponse,
 			opts...,
 		).Endpoint()
 	}
 
 	return Endpoints{
-		GetLicensesSrvEndpoint:         getLicensesSrvEndpoint,
-		GetVPPServiceConfigSrvEndpoint: getVPPServiceConfigSrvEndpoint,
+		GetAssetsSrvEndpoint:                 getAssetsSrvEndpoint,
+		GetLicensesSrvEndpoint:               getLicensesSrvEndpoint,
+		ManageVPPLicensesByAdamIdSrvEndpoint: manageVPPLicensesByAdamIdSrvEndpoint,
+		GetServiceConfigSrvEndpoint:          getServiceConfigSrvEndpoint,
 	}, nil
 }
