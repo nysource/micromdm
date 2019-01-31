@@ -25,12 +25,12 @@ type HTTPClient interface {
 }
 
 type Client struct {
-	VPPToken            VPPToken
-	ServerPublicURL     string
-	VPPServiceConfigSrv *VPPServiceConfigSrv
-	UserAgent           string
-	Client              HTTPClient
-	BaseURL             *url.URL
+	VPPToken         VPPToken
+	ServerPublicURL  string
+	ServiceConfigSrv *ServiceConfigSrv
+	UserAgent        string
+	Client           HTTPClient
+	BaseURL          *url.URL
 }
 
 type VPPToken struct {
@@ -50,13 +50,13 @@ func NewClient(token VPPToken, serverUrl string) (*Client, error) {
 	}
 
 	// Get VPPServiceConfigSrv Data
-	options := VPPServiceConfigSrvOptions{SToken: c.VPPToken.SToken}
+	options := ServiceConfigSrvOptions{SToken: c.VPPToken.SToken}
 
-	VPPServiceConfigSrv, err := c.GetVPPServiceConfigSrv(options)
+	ServiceConfigSrv, err := c.GetServiceConfigSrv(options)
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")
 	}
-	c.VPPServiceConfigSrv = VPPServiceConfigSrv
+	c.ServiceConfigSrv = ServiceConfigSrv
 
 	err = c.ConfigureClientContext(ClientConfigSrvOptions{})
 	if err != nil {

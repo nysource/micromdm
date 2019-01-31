@@ -49,7 +49,7 @@ func (c *Client) GetClientConfigSrv(options ClientConfigSrvOptions) (*ClientConf
 	}
 
 	// Get the ClientConfigSrvURL
-	clientConfigSrvURL := c.VPPServiceConfigSrv.ClientConfigSrvURL
+	clientConfigSrvURL := c.ServiceConfigSrv.ClientConfigSrvURL
 
 	// Create the ClientConfigSrvURL request
 	req, err := c.newRequest("POST", clientConfigSrvURL, options)
