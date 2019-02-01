@@ -9,6 +9,7 @@ import (
 )
 
 type Endpoints struct {
+	GetContentMetadataEndpoint           endpoint.Endpoint
 	GetAssetsSrvEndpoint                 endpoint.Endpoint
 	GetLicensesSrvEndpoint               endpoint.Endpoint
 	ManageVPPLicensesByAdamIdSrvEndpoint endpoint.Endpoint
@@ -17,6 +18,7 @@ type Endpoints struct {
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
+		GetContentMetadataEndpoint:           endpoint.Chain(outer, others...)(MakeGetContentMetadataEndpoint(s)),
 		GetAssetsSrvEndpoint:                 endpoint.Chain(outer, others...)(MakeGetAssetsSrvEndpoint(s)),
 		GetLicensesSrvEndpoint:               endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
 		ManageVPPLicensesByAdamIdSrvEndpoint: endpoint.Chain(outer, others...)(MakeManageVPPLicensesByAdamIdSrvEndpoint(s)),
@@ -25,6 +27,7 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
+	// POST		/v1/vpp/metadata		    list metadata for an app
 	// GET		/v1/vpp/assets	        list all vpp assets
 	// POST		/v1/vpp/assets		      list all vpp assets with options
 	// GET		/v1/vpp/licenses		    list all vpp licenses
@@ -32,6 +35,13 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	// PUT		/v1/vpp/licenses				manage vpp licenses
 	// GET		/v1/vpp/serviceconfig		get vpp service config information
 	// POST		/v1/vpp/serviceconfig		get vpp service config information for specific sToken
+
+	r.Methods("POST").Path("/v1/vpp/metadata").Handler(httptransport.NewServer(
+		e.GetContentMetadataEndpoint,
+		decodeGetContentMetadataRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
 
 	r.Methods("GET").Path("/v1/vpp/assets").Handler(httptransport.NewServer(
 		e.GetAssetsSrvEndpoint,

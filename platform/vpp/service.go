@@ -9,6 +9,7 @@ import (
 )
 
 type Service interface {
+	GetContentMetadata(ctx context.Context, options vpp.ContentMetadataOptions) (*vpp.ContentMetadata, error)
 	GetAssetsSrv(ctx context.Context, options vpp.AssetsSrvOptions) (*vpp.AssetsSrv, error)
 	GetLicensesSrv(ctx context.Context, options vpp.LicensesSrvOptions) (*vpp.LicensesSrv, error)
 	GetServiceConfigSrv(ctx context.Context, options vpp.ServiceConfigSrvOptions) (*vpp.ServiceConfigSrv, error)
@@ -16,6 +17,7 @@ type Service interface {
 }
 
 type VPPClient interface {
+	GetContentMetadata(vpp.ContentMetadataOptions) (*vpp.ContentMetadata, error)
 	GetAssetsSrv(vpp.AssetsSrvOptions) (*vpp.AssetsSrv, error)
 	GetLicensesSrv(vpp.LicensesSrvOptions) (*vpp.LicensesSrv, error)
 	GetServiceConfigSrv(vpp.ServiceConfigSrvOptions) (*vpp.ServiceConfigSrv, error)
