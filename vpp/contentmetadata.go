@@ -2,7 +2,6 @@ package vpp
 
 import (
 	"encoding/json"
-	"fmt"
 
 	"github.com/pkg/errors"
 )
@@ -58,15 +57,17 @@ func (c *Client) GetContentMetadata(options ContentMetadataOptions) (*ContentMet
 		return nil, errors.Wrap(err, "get ContentMetadataResponse")
 	}
 
-	appData, err := c.GetAppData(options.ID, response)
-	fmt.Println("APPDATA", appData)
-
 	return &response, errors.Wrap(err, "get ContentMetadata")
 }
 
-func (c *Client) GetAppData(appID string, metadata ContentMetadata) (*AppData, error) {
+func (c *Client) GetAppData(options ContentMetadataOptions) (*AppData, error) {
 
-	data := metadata.Results[appID]
+	metadata, err := c.GetContentMetadata(options)
+	if err != nil {
+		return nil, err
+	}
+
+	data := metadata.Results[options.ID]
 	bytes, err := json.Marshal(data)
 	if err != nil {
 		return nil, errors.Wrap(err, "get app data")

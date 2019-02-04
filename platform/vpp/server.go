@@ -9,6 +9,7 @@ import (
 )
 
 type Endpoints struct {
+	GetVPPAppsEndpoint                   endpoint.Endpoint
 	GetContentMetadataEndpoint           endpoint.Endpoint
 	GetAssetsSrvEndpoint                 endpoint.Endpoint
 	GetLicensesSrvEndpoint               endpoint.Endpoint
@@ -18,6 +19,7 @@ type Endpoints struct {
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
+		GetVPPAppsEndpoint:                   endpoint.Chain(outer, others...)(MakeGetVPPAppsEndpoint(s)),
 		GetContentMetadataEndpoint:           endpoint.Chain(outer, others...)(MakeGetContentMetadataEndpoint(s)),
 		GetAssetsSrvEndpoint:                 endpoint.Chain(outer, others...)(MakeGetAssetsSrvEndpoint(s)),
 		GetLicensesSrvEndpoint:               endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
@@ -35,6 +37,13 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	// PUT		/v1/vpp/licenses				manage vpp licenses
 	// GET		/v1/vpp/serviceconfig		get vpp service config information
 	// POST		/v1/vpp/serviceconfig		get vpp service config information for specific sToken
+
+	r.Methods("GET").Path("/v1/vpp/apps").Handler(httptransport.NewServer(
+		e.GetVPPAppsEndpoint,
+		decodeGetVPPAppsRequest,
+		httputil.EncodeJSONResponse,
+		options...,
+	))
 
 	r.Methods("POST").Path("/v1/vpp/metadata").Handler(httptransport.NewServer(
 		e.GetContentMetadataEndpoint,

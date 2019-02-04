@@ -16,6 +16,17 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		return nil, err
 	}
 
+	var getVPPAppsEndpoint endpoint.Endpoint
+	{
+		getVPPAppsEndpoint = httptransport.NewClient(
+			"GET",
+			httputil.CopyURL(u, "/v1/vpp/apps"),
+			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
+			decodeGetVPPAppsResponse,
+			opts...,
+		).Endpoint()
+	}
+
 	var getContentMetadataEndpoint endpoint.Endpoint
 	{
 		getContentMetadataEndpoint = httptransport.NewClient(
@@ -72,6 +83,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	}
 
 	return Endpoints{
+		GetVPPAppsEndpoint:                   getVPPAppsEndpoint,
 		GetContentMetadataEndpoint:           getContentMetadataEndpoint,
 		GetAssetsSrvEndpoint:                 getAssetsSrvEndpoint,
 		GetLicensesSrvEndpoint:               getLicensesSrvEndpoint,

@@ -76,7 +76,12 @@ func (c *Client) ConfigureClientContext(options ClientConfigSrvOptions) error {
 	if context.HostName != c.ServerPublicURL {
 		_, err := c.SetClientContext(options)
 		if err != nil {
-			return errors.Wrap(err, "SetClientContext request")
+			return errors.Wrap(err, "SetClientContext HostName request")
+		}
+	} else if context.GUID != c.VPPToken.UDID {
+		_, err := c.SetClientContext(options)
+		if err != nil {
+			return errors.Wrap(err, "SetClientContext GUID request")
 		}
 	}
 
