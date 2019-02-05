@@ -70,6 +70,8 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getUsers
 	case "apps":
 		run = cmd.getApps
+	case "vpp-apps":
+		run = cmd.getVPPApps
 	case "dep-autoassigners":
 		run = cmd.getDEPAutoAssigners
 	default:
@@ -96,6 +98,7 @@ Valid resource types:
   * users
   * profiles
   * apps
+  * vpp-apps
 
 Examples:
   # Get a list of devices
