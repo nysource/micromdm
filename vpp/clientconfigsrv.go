@@ -102,9 +102,9 @@ func (c *Client) GetClientContext(options ClientConfigSrvOptions) (*ClientContex
 	var context = clientConfigSrv.ClientContext
 	if context != "" {
 		// Convert the string to a ClientContext type
-		err = json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
+		err = DecodeToClientContext(context, &clientContext)
 		if err != nil {
-			return nil, errors.Wrap(err, "decode ClientContext")
+			return nil, errors.Wrap(err, "get ClientContext")
 		}
 	} else {
 		clientContext.HostName = ""
@@ -134,15 +134,21 @@ func (c *Client) SetClientContext(options ClientConfigSrvOptions) (*ClientContex
 		return nil, errors.Wrap(err, "set ClientContext request")
 	}
 
-	// Get the new ClientContext string
-	var contextString = response.ClientContext
-
 	// Convert the string to a ClientContext type
 	var clientContext ClientContext
-	err = json.NewDecoder(strings.NewReader(contextString)).Decode(&clientContext)
+	err = DecodeToClientContext(response.ClientContext, &clientContext)
 	if err != nil {
-		return nil, errors.Wrap(err, "decode new ClientContext")
+		return nil, errors.Wrap(err, "set ClientContext")
 	}
 
 	return &clientContext, nil
+}
+
+func DecodeToClientContext(contextString string, context *ClientContext) error {
+	// Convert the string to a ClientContext type
+	err := json.NewDecoder(strings.NewReader(contextString)).Decode(&context)
+	if err != nil {
+		return errors.Wrap(err, "decode ClientContext")
+	}
+	return nil
 }
