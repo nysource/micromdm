@@ -11,6 +11,10 @@ import (
 	"github.com/micromdm/micromdm/vpp"
 )
 
+type GetAssetsSrvOptions struct {
+	AssetsSrvOptions vpp.AssetsSrvOptions
+}
+
 func (svc *VPPService) GetAssetsSrv(ctx context.Context, options vpp.AssetsSrvOptions) (*vpp.AssetsSrv, error) {
 	if svc.client == nil {
 		return nil, errors.New("VPP not configured yet. add a VPP token to enable VPP")
