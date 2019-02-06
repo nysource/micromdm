@@ -22,7 +22,7 @@ func (out *vppAppsTableOutput) BasicFooter() {
 }
 
 type VPPAppResponse struct {
-	VPPAppsList []VPPAppData
+	VPPAppsList []VPPAppData `json:"vpp-apps"`
 }
 
 type VPPAppData struct {
