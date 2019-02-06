@@ -60,7 +60,7 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyProfile
 	case "app":
 		run = cmd.applyApp
-	case "vpp-app":
+	case "vpp-apps", "vpp-app":
 		run = cmd.applyVPPApp
 	case "block":
 		run = cmd.applyBlock

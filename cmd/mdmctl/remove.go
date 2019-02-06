@@ -50,7 +50,7 @@ func (cmd *removeCommand) Run(args []string) error {
 		run = cmd.removeBlock
 	case "dep-autoassigner":
 		run = cmd.removeDEPAutoAssigner
-	case "vpp-app":
+	case "vpp-apps", "vpp-app":
 		run = cmd.removeVPPApp
 	default:
 		cmd.Usage()

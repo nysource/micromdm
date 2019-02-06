@@ -70,9 +70,9 @@ func (cmd *getCommand) Run(args []string) error {
 		run = cmd.getUsers
 	case "apps":
 		run = cmd.getApps
-	case "vpp-apps":
+	case "vpp-apps", "vpp-app":
 		run = cmd.getVPPApps
-	case "vpp-licenses":
+	case "vpp-licenses", "vpp-license":
 		run = cmd.getVPPLicenses
 	case "dep-autoassigners":
 		run = cmd.getDEPAutoAssigners
