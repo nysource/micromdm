@@ -29,14 +29,15 @@ func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoin
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// POST		/v1/vpp/metadata		    list metadata for an app
+	// GET    /v1/vpp/apps            list selected useful vpp app information
+	// POST		/v1/vpp/metadata		    list metadata for a vpp app
 	// GET		/v1/vpp/assets	        list all vpp assets
-	// POST		/v1/vpp/assets		      list all vpp assets with options
+	// POST		/v1/vpp/assets		      list vpp assets with options
 	// GET		/v1/vpp/licenses		    list all vpp licenses
-	// POST		/v1/vpp/licenses		    list all vpp licenses with options
+	// POST		/v1/vpp/licenses		    list vpp licenses with options
 	// PUT		/v1/vpp/licenses				manage vpp licenses
 	// GET		/v1/vpp/serviceconfig		get vpp service config information
-	// POST		/v1/vpp/serviceconfig		get vpp service config information for specific sToken
+	// POST		/v1/vpp/serviceconfig		get vpp service config information with options
 
 	r.Methods("GET").Path("/v1/vpp/apps").Handler(httptransport.NewServer(
 		e.GetVPPAppsEndpoint,
