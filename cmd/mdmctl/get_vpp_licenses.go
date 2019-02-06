@@ -6,6 +6,7 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
 	"github.com/micromdm/micromdm/vpp"
@@ -29,7 +30,9 @@ func (out *vppLicensesTableOutput) BasicFooter() {
 func (cmd *getCommand) getVPPLicenses(args []string) error {
 	flagset := flag.NewFlagSet("vpp-licenses", flag.ExitOnError)
 	var (
-		flIDFilter = flagset.String("id", "", "specify the id of the vpp app to get full details")
+		flIDFilter = flagset.String("id", "", "specify the id of a vpp app for which to get associated license details")
+		flSerial   = flagset.String("serial", "", "a single serial for which to get associated license details")
+		flVerbose  = flagset.Bool("verbose", false, "specify -verbose to get full licenses details")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get vpp-licenses [flags]")
 	if err := flagset.Parse(args); err != nil {
@@ -42,12 +45,17 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 		options.AdamID = *flIDFilter
 	}
 
+	var serial = strings.Split(*flSerial, ",")[0]
+	if *flSerial != "" {
+		options.SerialNumber = serial
+	}
+
 	licensesSrv, err := cmd.vppsvc.GetLicensesSrv(ctx, options)
 	if err != nil {
 		return err
 	}
 
-	if *flIDFilter != "" {
+	if *flVerbose == true {
 		bytes, err := json.MarshalIndent(licensesSrv, "", "  ")
 		if err != nil {
 			return err
@@ -56,13 +64,8 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 		return nil
 	}
 
-	/*var clientContext vpp.ClientContext
-	context := licensesSrv.ClientContext
-
-	err = json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
-	if err != nil {
-		return err
-	}*/
+	var clientContext vpp.ClientContext
+	vpp.DecodeToClientContext(licensesSrv.ClientContext, &clientContext)
 
 	licenses := licensesSrv.Licenses
 
@@ -70,15 +73,18 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 	for _, license := range licenses {
 		found := false
 		if len(licensesList) > 0 {
-			for _, saved := range licensesList {
+			for i, saved := range licensesList {
 				if license.AdamIDStr == saved.AdamID {
 					found = true
-					saved.Serials = append(saved.Serials, license.SerialNumber)
+					if license.SerialNumber != "" {
+						saved.Serials = append(saved.Serials, license.SerialNumber)
+					}
+					licensesList[i] = saved
 				}
 			}
 		}
 
-		if !found {
+		if found == false {
 			licensesList = append(licensesList, vppLicenseWithSerials{
 				AdamID:  license.AdamIDStr,
 				Serials: []string{license.SerialNumber},
@@ -92,7 +98,7 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 	defer out.BasicFooter()
 	for _, a := range licensesList {
 		//fmt.Fprintf(out.w, "%s\t%s\t%s\n", a.AdamID, clientContext.GUID, a.Serials)
-		fmt.Fprintf(out.w, "%s\t%s\t%s\n", a.AdamID, "", a.Serials)
+		fmt.Fprintf(out.w, "%s\t%s\t%s\n", a.AdamID, clientContext.GUID, a.Serials)
 	}
 	return nil
 }
