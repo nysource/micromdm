@@ -6,10 +6,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"strings"
 	"text/tabwriter"
 
-	"github.com/micromdm/micromdm/vpp"
+	"github.com/pkg/errors"
 )
+
+type VPPAppData struct {
+	Name           string   `json:"name"`
+	DeviceFamilies []string `json:"deviceFamilies"`
+}
 
 type vppAppsTableOutput struct{ w *tabwriter.Writer }
 
@@ -21,20 +27,10 @@ func (out *vppAppsTableOutput) BasicFooter() {
 	out.w.Flush()
 }
 
-type VPPAppResponse struct {
-	VPPAppsList []VPPAppData `json:"vpp-apps"`
-}
-
-type VPPAppData struct {
-	Asset         interface{}       `json:"vpp-asset,omitempty"`
-	ClientContext vpp.ClientContext `json:"client-context,omitempty"`
-	Metadata      interface{}       `json:"vpp-metadata,omitempty"`
-}
-
 func (cmd *getCommand) getVPPApps(args []string) error {
 	flagset := flag.NewFlagSet("vpp-apps", flag.ExitOnError)
 	var (
-		flIDFilter = flagset.String("id", "", "specify the id of the vpp app to filter results to one app")
+		flIDFilter = flagset.String("id", "", "comma separated list of vpp app ids to filter results")
 		flVerbose  = flagset.Bool("verbose", false, "specify -verbose to get full apps details")
 	)
 	flagset.Usage = usageFor(flagset, "mdmctl get vpp-apps [flags]")
@@ -43,47 +39,14 @@ func (cmd *getCommand) getVPPApps(args []string) error {
 	}
 	ctx := context.Background()
 
+	ids := strings.Split(*flIDFilter, ",")
+
+	response, err := cmd.vppsvc.GetVPPApps(ctx, ids)
+	if err != nil {
+		return err
+	}
+
 	if *flVerbose == true {
-		assetsSrv, err := cmd.vppsvc.GetAssetsSrv(ctx, vpp.AssetsSrvOptions{
-			IncludeLicenseCounts: true,
-		})
-		if err != nil {
-			return err
-		}
-		assets := assetsSrv.Assets
-
-		if *flIDFilter != "" {
-			for _, a := range assets {
-				if a.AdamIDStr == *flIDFilter {
-					assets = []vpp.Asset{a}
-				}
-			}
-			if len(assets) > 1 {
-				assets = []vpp.Asset{}
-			}
-		}
-
-		var response VPPAppResponse
-		for _, a := range assets {
-			var vppApp VPPAppData
-
-			var clientContext vpp.ClientContext
-			vpp.DecodeToClientContext(assetsSrv.ClientContext, &clientContext)
-
-			vppApp.ClientContext = clientContext
-			vppApp.Asset = a
-
-			metadata, err := cmd.vppsvc.GetContentMetadata(ctx, vpp.ContentMetadataOptions{
-				ID: a.AdamIDStr,
-			})
-			if err != nil {
-				return err
-			}
-			vppApp.Metadata = metadata
-
-			response.VPPAppsList = append(response.VPPAppsList, vppApp)
-		}
-
 		bytes, err := json.MarshalIndent(response, "", "  ")
 		if err != nil {
 			return err
@@ -92,29 +55,31 @@ func (cmd *getCommand) getVPPApps(args []string) error {
 		return nil
 	}
 
-	appsList, err := cmd.vppsvc.GetVPPApps(ctx)
-	apps := appsList.VPPApps
-	if err != nil {
-		return err
-	}
-
-	if *flIDFilter != "" {
-		for _, a := range apps {
-			if a.ID == *flIDFilter {
-				apps = []vpp.VPPApp{a}
-			}
-		}
-		if len(apps) > 1 {
-			apps = []vpp.VPPApp{}
-		}
-	}
+	apps := response.VPPAppsList
 
 	w := tabwriter.NewWriter(os.Stdout, 0, 4, 2, ' ', 0)
 	out := vppAppsTableOutput{w}
 	out.BasicHeader()
 	defer out.BasicFooter()
 	for _, a := range apps {
-		fmt.Fprintf(out.w, "%s\t%s\t%s\t%d\t%d\t%d\t%s\n", a.ID, a.Name, a.DeviceFamilies, a.TotalLicenses, a.AssignedLicenses, a.AvailableLicenses, a.TokenUUID)
+		results, err := getAppData(a.Metadata.Results[a.Asset.AdamIDStr])
+		if err != nil {
+			return err
+		}
+
+		fmt.Fprintf(out.w, "%s\t%s\t%s\t%d\t%d\t%d\t%s\n", a.Asset.AdamIDStr, results.Name, results.DeviceFamilies, a.Asset.TotalCount, a.Asset.AssignedCount, a.Asset.AvailableCount, a.ClientContext.GUID)
 	}
 	return nil
+}
+
+func getAppData(metadata interface{}) (*VPPAppData, error) {
+
+	bytes, err := json.Marshal(metadata)
+	if err != nil {
+		return nil, errors.Wrap(err, "get vpp app data")
+	}
+
+	var response VPPAppData
+	err = json.Unmarshal(bytes, &response)
+	return &response, errors.Wrap(err, "get VPPAppData")
 }

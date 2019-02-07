@@ -19,7 +19,7 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	var getVPPAppsEndpoint endpoint.Endpoint
 	{
 		getVPPAppsEndpoint = httptransport.NewClient(
-			"GET",
+			"POST",
 			httputil.CopyURL(u, "/v1/vpp/apps"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
 			decodeGetVPPAppsResponse,

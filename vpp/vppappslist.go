@@ -1,27 +1,16 @@
 package vpp
 
-import (
-	"encoding/json"
-	"strings"
-
-	"github.com/pkg/errors"
-)
-
-type VPPAppsList struct {
-	VPPApps []VPPApp `json:"vpp-apps"`
+type VPPAppResponse struct {
+	VPPAppsList []VPPAppData `json:"vpp-apps"`
 }
 
-type VPPApp struct {
-	ID                string   `json:"id"`
-	DeviceFamilies    []string `json:"deviceFamilies"`
-	Name              string   `json:"name"`
-	TotalLicenses     int      `json:"totalLicenses"`
-	AssignedLicenses  int      `json:"assignedLicenses"`
-	AvailableLicenses int      `json:"availableLicenses"`
-	TokenUUID         string   `json:"tokenUUID"`
+type VPPAppData struct {
+	Asset         Asset            `json:"vpp-asset,omitempty"`
+	ClientContext ClientContext    `json:"client-context,omitempty"`
+	Metadata      *ContentMetadata `json:"vpp-metadata,omitempty"`
 }
 
-func (c *Client) GetVPPApps() (*VPPAppsList, error) {
+func (c *Client) GetVPPApps(ids ...string) (*VPPAppResponse, error) {
 
 	assetsSrvOptions := AssetsSrvOptions{
 		SToken:               c.VPPToken.SToken,
@@ -33,38 +22,50 @@ func (c *Client) GetVPPApps() (*VPPAppsList, error) {
 		return nil, err
 	}
 
-	var clientContext ClientContext
-	context := assetsSrv.ClientContext
+	var assets = assetsSrv.Assets
 
-	err = json.NewDecoder(strings.NewReader(context)).Decode(&clientContext)
-	if err != nil {
-		return nil, errors.Wrap(err, "decode ClientContext")
+	// Filter out Assets
+	if len(ids) == 1 && ids[0] == "" {
+		ids = []string{}
+	}
+	if len(ids) > 0 {
+		keep := []Asset{}
+		for _, a := range assets {
+			for _, id := range ids {
+				if a.AdamIDStr == id {
+					keep = append(keep, a)
+				}
+			}
+		}
+		assets = keep
 	}
 
-	appsList := VPPAppsList{}
+	response := VPPAppResponse{}
 
-	var assets = assetsSrv.Assets
-	for _, asset := range assets {
+	for _, a := range assets {
 
-		contentMetadataOptions := ContentMetadataOptions{
-			ID: asset.AdamIDStr,
-		}
-		data, err := c.GetAppData(contentMetadataOptions)
+		var vppApp VPPAppData
+
+		vppApp.Asset = a
+
+		var clientContext ClientContext
+		err = DecodeToClientContext(assetsSrv.ClientContext, &clientContext)
 		if err != nil {
 			return nil, err
 		}
 
-		vppApp := VPPApp{
-			ID:                asset.AdamIDStr,
-			DeviceFamilies:    data.DeviceFamilies,
-			Name:              data.Name,
-			TotalLicenses:     asset.TotalCount,
-			AssignedLicenses:  asset.AssignedCount,
-			AvailableLicenses: asset.AvailableCount,
-			TokenUUID:         clientContext.GUID,
+		vppApp.ClientContext = clientContext
+
+		metadata, err := c.GetContentMetadata(ContentMetadataOptions{
+			ID: a.AdamIDStr,
+		})
+		if err != nil {
+			return nil, err
 		}
-		appsList.VPPApps = append(appsList.VPPApps, vppApp)
+		vppApp.Metadata = metadata
+
+		response.VPPAppsList = append(response.VPPAppsList, vppApp)
 	}
 
-	return &appsList, errors.Wrap(err, "make LicensesSrv request")
+	return &response, nil
 }
