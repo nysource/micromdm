@@ -1,8 +1,6 @@
 package vpp
 
 import (
-	"encoding/json"
-
 	"github.com/pkg/errors"
 )
 
@@ -54,26 +52,8 @@ func (c *Client) GetContentMetadata(options ContentMetadataOptions) (*ContentMet
 
 	err = c.do(req, &response)
 	if err != nil {
-		return nil, errors.Wrap(err, "get ContentMetadataResponse")
+		return nil, errors.Wrap(err, "please verify your parameters are valid")
 	}
 
 	return &response, errors.Wrap(err, "get ContentMetadata")
-}
-
-func (c *Client) GetAppData(options ContentMetadataOptions) (*AppData, error) {
-
-	metadata, err := c.GetContentMetadata(options)
-	if err != nil {
-		return nil, err
-	}
-
-	data := metadata.Results[options.ID]
-	bytes, err := json.Marshal(data)
-	if err != nil {
-		return nil, errors.Wrap(err, "get app data")
-	}
-
-	var response AppData
-	err = json.Unmarshal(bytes, &response)
-	return &response, errors.Wrap(err, "get AppData")
 }
