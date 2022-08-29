@@ -29,6 +29,7 @@ import (
 	queueinmem "github.com/micromdm/micromdm/platform/queue/inmem"
 	block "github.com/micromdm/micromdm/platform/remove"
 	blockbuiltin "github.com/micromdm/micromdm/platform/remove/builtin"
+	"github.com/micromdm/micromdm/vpp"
 	"github.com/micromdm/micromdm/workflow/webhook"
 
 	"github.com/boltdb/bolt"
@@ -60,6 +61,7 @@ type Server struct {
 	RemoveDB               block.Store
 	CommandWebhookURL      string
 	DEPClient              *dep.Client
+	VPPClient              *vpp.Client
 	SyncDB                 *syncbuiltin.DB
 	NoCmdHistory           bool
 	ValidateSCEPIssuer     bool
@@ -115,6 +117,10 @@ func (c *Server) Setup(logger log.Logger) error {
 	}
 
 	if err := c.setupDepClient(); err != nil {
+		return err
+	}
+
+	if err := c.setupVppClient(); err != nil {
 		return err
 	}
 
@@ -330,6 +336,22 @@ func (c *Server) setupDepClient() error {
 	}
 
 	c.DEPClient = dep.NewClient(conf, opts...)
+	return nil
+}
+
+func (c *Server) setupVppClient() error {
+	// try getting the VPP Tokens from bolt
+	tokens, err := c.ConfigDB.VPPTokens()
+	if err != nil {
+		return err
+	}
+	if len(tokens) >= 1 {
+		c.VPPClient, err = vpp.NewClient(tokens[0].SToken)
+	} else {
+		return nil
+	}
+	// TODO: handle expiration
+
 	return nil
 }
 

@@ -11,26 +11,26 @@ import (
 	"github.com/micromdm/micromdm/vpp"
 )
 
-type GetAssetsSrvOptions struct {
-	AssetsSrvOptions vpp.AssetsSrvOptions
-}
-
-func (svc *VPPService) GetAssetsSrv(ctx context.Context, options vpp.AssetsSrvOptions) (*vpp.AssetsSrv, error) {
+func (svc *VPPService) GetVPPAssetsSrv(ctx context.Context) (*vpp.VPPAssetsSrv, error) {
 	if svc.client == nil {
 		return nil, errors.New("VPP not configured yet. add a VPP token to enable VPP")
 	}
-	return svc.client.GetAssetsSrv(options)
+	return svc.client.GetVPPAssetsSrv()
 }
 
-type getAssetsSrvResponse struct {
-	*vpp.AssetsSrv
+type getVPPAssetsSrvRequest struct {
+	SToken string `json:"sToken"`
+}
+
+type getVPPAssetsSrvResponse struct {
+	*vpp.VPPAssetsSrv
 	Err error `json:"err,omitempty"`
 }
 
-func (r getAssetsSrvResponse) Failed() error { return r.Err }
+func (r getVPPAssetsSrvResponse) Failed() error { return r.Err }
 
-func decodeGetAssetsSrvRequest(ctx context.Context, r *http.Request) (interface{}, error) {
-	var req vpp.AssetsSrvOptions
+func decodeGetVPPAssetsSrvRequest(ctx context.Context, r *http.Request) (interface{}, error) {
+	var req getVPPAssetsSrvRequest
 
 	switch r.Method {
 	case "POST":
@@ -41,24 +41,23 @@ func decodeGetAssetsSrvRequest(ctx context.Context, r *http.Request) (interface{
 	}
 }
 
-func decodeGetAssetsSrvResponse(_ context.Context, r *http.Response) (interface{}, error) {
-	var resp getAssetsSrvResponse
+func decodeGetVPPAssetsSrvResponse(_ context.Context, r *http.Response) (interface{}, error) {
+	var resp getVPPAssetsSrvResponse
 	err := httputil.DecodeJSONResponse(r, &resp)
 	return resp, err
 }
 
-func MakeGetAssetsSrvEndpoint(svc Service) endpoint.Endpoint {
+func MakeGetVPPAssetsSrvEndpoint(svc Service) endpoint.Endpoint {
 	return func(ctx context.Context, request interface{}) (response interface{}, err error) {
-		req := request.(vpp.AssetsSrvOptions)
-		srv, err := svc.GetAssetsSrv(ctx, req)
-		return getAssetsSrvResponse{AssetsSrv: srv, Err: err}, nil
+		srv, err := svc.GetVPPAssetsSrv(ctx)
+		return getVPPAssetsSrvResponse{VPPAssetsSrv: srv, Err: err}, nil
 	}
 }
 
-func (e Endpoints) GetAssetsSrv(ctx context.Context, options vpp.AssetsSrvOptions) (*vpp.AssetsSrv, error) {
-	response, err := e.GetAssetsSrvEndpoint(ctx, options)
+func (e Endpoints) GetVPPAssetsSrv(ctx context.Context) (*vpp.VPPAssetsSrv, error) {
+	response, err := e.GetVPPAssetsSrvEndpoint(ctx, nil)
 	if err != nil {
 		return nil, err
 	}
-	return response.(getAssetsSrvResponse).AssetsSrv, response.(getAssetsSrvResponse).Err
+	return response.(getVPPAssetsSrvResponse).VPPAssetsSrv, response.(getVPPAssetsSrvResponse).Err
 }

@@ -5,7 +5,7 @@ import (
 
 	"google.golang.org/protobuf/proto"
 
-	"github.com/micromdm/micromdm/platform/queue/internal/commandqueuedproto"
+	commandqueued "github.com/micromdm/micromdm/platform/queue/internal/commandqueuedproto"
 )
 
 type QueueCommandQueued struct {

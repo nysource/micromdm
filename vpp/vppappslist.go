@@ -1,4 +1,8 @@
 package vpp
+import (
+	"encoding/json"
+	"strings"
+)
 
 type VPPAppResponse struct {
 	VPPAppsList []VPPAppData `json:"vpp-apps"`
@@ -12,12 +16,7 @@ type VPPAppData struct {
 
 func (c *Client) GetVPPApps(ids ...string) (*VPPAppResponse, error) {
 
-	assetsSrvOptions := AssetsSrvOptions{
-		SToken:               c.VPPToken.SToken,
-		IncludeLicenseCounts: true,
-	}
-
-	assetsSrv, err := c.GetAssetsSrv(assetsSrvOptions)
+	assetsSrv, err := c.GetVPPAssetsSrv()
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func (c *Client) GetVPPApps(ids ...string) (*VPPAppResponse, error) {
 		vppApp.Asset = a
 
 		var clientContext ClientContext
-		err = DecodeToClientContext(assetsSrv.ClientContext, &clientContext)
+		err = json.NewDecoder(strings.NewReader(assetsSrv.ClientContext)).Decode(&clientContext)
 		if err != nil {
 			return nil, err
 		}

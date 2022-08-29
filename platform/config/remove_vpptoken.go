@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"encoding/json"
-	"strings"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -14,17 +12,13 @@ import (
 func (svc *ConfigService) RemoveVPPToken(ctx context.Context, token_Content []byte) error {
 
 	// Save the data to a SToken
-	var sToken SToken
-	err := json.NewDecoder(strings.NewReader(string(token_Content))).Decode(&sToken)
-	if err != nil {
-		return err
-	}
+	var sToken = string(token_Content)
 
-	err = svc.store.DeleteVPPToken(string(sToken.Token))
+	err := svc.store.DeleteVPPToken(sToken)
 	if err != nil {
 		return err
 	}
-	fmt.Println("removed VPP token with Token", string(sToken.Token))
+	fmt.Println("removed VPP token with Token", sToken)
 	return nil
 }
 

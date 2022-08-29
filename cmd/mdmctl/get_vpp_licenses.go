@@ -40,7 +40,7 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 	}
 	ctx := context.Background()
 
-	var options vpp.LicensesSrvOptions
+	var options vpp.GetLicensesSrvOptions
 	if *flIDFilter != "" {
 		options.AdamID = *flIDFilter
 	}
@@ -65,7 +65,7 @@ func (cmd *getCommand) getVPPLicenses(args []string) error {
 	}
 
 	var clientContext vpp.ClientContext
-	vpp.DecodeToClientContext(licensesSrv.ClientContext, &clientContext)
+	json.NewDecoder(strings.NewReader(licensesSrv.ClientContext)).Decode(&clientContext)
 
 	licenses := licensesSrv.Licenses
 

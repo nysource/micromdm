@@ -33,6 +33,7 @@ import (
 	block "github.com/micromdm/micromdm/platform/remove"
 	"github.com/micromdm/micromdm/platform/user"
 	userbuiltin "github.com/micromdm/micromdm/platform/user/builtin"
+	vppapi "github.com/micromdm/micromdm/platform/vpp"
 	"github.com/micromdm/micromdm/server"
 
 	"github.com/boltdb/bolt"
@@ -310,6 +311,15 @@ func serve(args []string) error {
 
 		depsyncEndpoints := sync.MakeServerEndpoints(sync.NewService(syncer, sm.SyncDB), basicAuthEndpointMiddleware)
 		sync.RegisterHTTPHandlers(r, depsyncEndpoints, options...)
+
+		var vc vppapi.VPPClient
+		if sm.VPPClient != nil {
+			vc = sm.VPPClient
+		}
+		vppsvc := vppapi.New(vc, sm.PubClient)
+		vppsvc.Run()
+		vppEndpoints := vppapi.MakeServerEndpoints(vppsvc, basicAuthEndpointMiddleware)
+		vppapi.RegisterHTTPHandlers(r, vppEndpoints, options...)
 
 		if sm.SCEPChallengeDepot != nil {
 			challengeEndpoints := challenge.MakeServerEndpoints(challenge.NewService(sm.SCEPChallengeDepot), basicAuthEndpointMiddleware)

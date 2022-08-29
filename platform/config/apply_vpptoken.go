@@ -4,9 +4,9 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"github.com/satori/go.uuid"
 	"net/http"
-	"strings"
+
+	"github.com/google/uuid"
 
 	"github.com/go-kit/kit/endpoint"
 	"github.com/micromdm/micromdm/pkg/httputil"
@@ -15,15 +15,11 @@ import (
 func (svc *ConfigService) ApplyVPPToken(ctx context.Context, token_Content []byte) error {
 
 	// Save the data to an SToken
-	var sToken SToken
-	err := json.NewDecoder(strings.NewReader(string(token_Content))).Decode(&sToken)
-	if err != nil {
-		return err
-	}
+	var sToken = string(token_Content)
 
 	// Create VPPToken with a UDID for ClientContext tracking
 	var vppToken VPPToken
-	vppToken.UDID = uuid.NewV4().String()
+	vppToken.UDID = uuid.New().String()
 	vppToken.SToken = sToken
 
 	// Convert to JSON
@@ -33,11 +29,11 @@ func (svc *ConfigService) ApplyVPPToken(ctx context.Context, token_Content []byt
 	}
 
 	// Save the token
-	err = svc.store.AddVPPToken(vppToken.SToken.Token, tokenJSON)
+	err = svc.store.AddVPPToken(vppToken.SToken, tokenJSON)
 	if err != nil {
 		return err
 	}
-	fmt.Println("stored VPP token", vppToken.SToken.Token)
+	fmt.Println("stored VPP token", vppToken.SToken)
 	return nil
 }
 

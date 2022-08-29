@@ -23,7 +23,7 @@ type ContentMetadataOptions struct {
 
 func (c *Client) GetContentMetadata(options ContentMetadataOptions) (*ContentMetadata, error) {
 
-	contentMetadataLookupURL := c.ServiceConfigSrv.ContentMetadataLookupURL
+	contentMetadataLookupURL := c.VPPServiceConfigSrv.ContentMetadataLookupURL
 
 	req, err := c.newRequest("GET", contentMetadataLookupURL, options)
 	if err != nil {

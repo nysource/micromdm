@@ -11,9 +11,10 @@ import (
 	"github.com/pkg/errors"
 )
 
-var version = "dev"
-
 const (
+	serverURL = "https://your.server.com" // This needs to be modified to be imported from server
+	version   = ""                        // This needs to be modified to be imported from server
+
 	defaultBaseURL               = "https://vpp.itunes.apple.com/WebObjects/MZFinance.woa/wa/VPPServiceConfigSrv"
 	mediaType                    = "application/json;charset=UTF8"
 	XServerProtocolVersionHeader = "X-Server-Protocol-Version"
@@ -24,68 +25,68 @@ type HTTPClient interface {
 	Do(req *http.Request) (*http.Response, error)
 }
 
+// Contains the sToken string used to authenticate to the various VPP services
+// Contains the return VPPServiceConfigSrv information
 type Client struct {
-	VPPToken         VPPToken
-	ServerPublicURL  string
-	ServiceConfigSrv *ServiceConfigSrv
-	UserAgent        string
-	Client           HTTPClient
-	BaseURL          *url.URL
+	SToken              string
+	VPPServiceConfigSrv *VPPServiceConfigSrv
+	userAgent           string
+	client              HTTPClient
+	BaseURL             *url.URL
 }
 
-type VPPToken struct {
-	UDID   string `json:"udid"`
-	SToken string `json:"sToken"`
-}
-
-func NewClient(token VPPToken, serverUrl string) (*Client, error) {
-
+func NewClient(sToken string) (*Client, error) {
 	baseURL, _ := url.Parse(defaultBaseURL)
-	c := Client{
-		VPPToken:        token,
-		ServerPublicURL: serverUrl,
-		UserAgent:       path.Join("micromdm", version),
-		Client:          http.DefaultClient,
-		BaseURL:         baseURL,
+	client := Client{
+		SToken:    sToken,
+		userAgent: path.Join("micromdm", version),
+		client:    http.DefaultClient,
+		BaseURL:   baseURL,
 	}
 
 	// Get VPPServiceConfigSrv Data
-	options := ServiceConfigSrvOptions{SToken: c.VPPToken.SToken}
-
-	ServiceConfigSrv, err := c.GetServiceConfigSrv(options)
+	VPPServiceConfigSrv, err := client.GetVPPServiceConfigSrv()
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPServiceConfigSrv request")
 	}
-	c.ServiceConfigSrv = ServiceConfigSrv
+	client.VPPServiceConfigSrv = VPPServiceConfigSrv
 
-	err = c.ConfigureClientContext(ClientConfigSrvOptions{})
+	// Set Client Context If Needed
+	context, err := client.GetClientContext()
 	if err != nil {
-		return nil, errors.Wrap(err, "configure ClientContext")
+		return nil, errors.Wrap(err, "GetClientContext request")
 	}
 
-	return &c, nil
+	if context.HostName != serverURL {
+		_, err := client.SetClientContext(serverURL)
+		if err != nil {
+			return nil, errors.Wrap(err, "SetClientContext request")
+		}
+	}
+
+	return &client, nil
 }
 
-func (c *Client) newRequest(method, URLStr string, body interface{}) (*http.Request, error) {
-	rel, err := url.Parse(URLStr)
+func (c *Client) newRequest(method, urlStr string, body interface{}) (*http.Request, error) {
+	rel, err := url.Parse(urlStr)
 	if err != nil {
-		return nil, errors.Wrapf(err, "parse vpp request url %s", URLStr)
+		return nil, errors.Wrapf(err, "parse vpp request url %s", urlStr)
 	}
 
 	u := c.BaseURL.ResolveReference(rel)
-	var buf bytes.Buffer
+	buf := new(bytes.Buffer)
 	if body != nil {
-		if err := json.NewEncoder(&buf).Encode(body); err != nil {
+		if err := json.NewEncoder(buf).Encode(body); err != nil {
 			return nil, errors.Wrap(err, "encode http body for VPP request")
 		}
 	}
 
-	req, err := http.NewRequest(method, u.String(), &buf)
+	req, err := http.NewRequest(method, u.String(), buf)
 	if err != nil {
 		return nil, errors.Wrapf(err, "creating %s request to vpp %s", method, u.String())
 	}
 
-	req.Header.Add("User-Agent", c.UserAgent)
+	req.Header.Add("User-Agent", c.userAgent)
 	req.Header.Add("Content-Type", mediaType)
 	req.Header.Add("Accept", mediaType)
 	req.Header.Add(XServerProtocolVersionHeader, XServerProtocolVersion)
@@ -93,7 +94,7 @@ func (c *Client) newRequest(method, URLStr string, body interface{}) (*http.Requ
 }
 
 func (c *Client) do(req *http.Request, into interface{}) error {
-	resp, err := c.Client.Do(req)
+	resp, err := c.client.Do(req)
 	if err != nil {
 		return errors.Wrap(err, "perform vpp request")
 	}
@@ -103,8 +104,6 @@ func (c *Client) do(req *http.Request, into interface{}) error {
 		body, _ := ioutil.ReadAll(resp.Body)
 		return errors.Errorf("unexpected vpp response. status=%d VPP API Error: %s", resp.StatusCode, string(body))
 	}
-
 	err = json.NewDecoder(resp.Body).Decode(into)
-
 	return errors.Wrap(err, "decode VPP response body")
 }

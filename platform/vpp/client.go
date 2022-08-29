@@ -38,13 +38,13 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
-	var getAssetsSrvEndpoint endpoint.Endpoint
+	var getVPPAssetsSrvEndpoint endpoint.Endpoint
 	{
-		getAssetsSrvEndpoint = httptransport.NewClient(
+		getVPPAssetsSrvEndpoint = httptransport.NewClient(
 			"POST",
 			httputil.CopyURL(u, "/v1/vpp/assets"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
-			decodeGetAssetsSrvResponse,
+			decodeGetVPPAssetsSrvResponse,
 			opts...,
 		).Endpoint()
 	}
@@ -71,9 +71,9 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 		).Endpoint()
 	}
 
-	var getServiceConfigSrvEndpoint endpoint.Endpoint
+	var getVPPServiceConfigSrvEndpoint endpoint.Endpoint
 	{
-		getServiceConfigSrvEndpoint = httptransport.NewClient(
+		getVPPServiceConfigSrvEndpoint = httptransport.NewClient(
 			"POST",
 			httputil.CopyURL(u, "/v1/vpp/serviceconfig"),
 			httputil.EncodeRequestWithToken(token, httptransport.EncodeJSONRequest),
@@ -85,9 +85,9 @@ func NewHTTPClient(instance, token string, logger log.Logger, opts ...httptransp
 	return Endpoints{
 		GetVPPAppsEndpoint:                   getVPPAppsEndpoint,
 		GetContentMetadataEndpoint:           getContentMetadataEndpoint,
-		GetAssetsSrvEndpoint:                 getAssetsSrvEndpoint,
+		GetVPPAssetsSrvEndpoint:              getVPPAssetsSrvEndpoint,
 		GetLicensesSrvEndpoint:               getLicensesSrvEndpoint,
 		ManageVPPLicensesByAdamIdSrvEndpoint: manageVPPLicensesByAdamIdSrvEndpoint,
-		GetServiceConfigSrvEndpoint:          getServiceConfigSrvEndpoint,
+		GetVPPServiceConfigSrvEndpoint:       getVPPServiceConfigSrvEndpoint,
 	}, nil
 }

@@ -15,7 +15,7 @@ func (svc *VPPService) ManageVPPLicensesByAdamIdSrv(ctx context.Context, options
 	if svc.client == nil {
 		return nil, errors.New("VPP not configured yet. add a VPP token to enable VPP")
 	}
-	return svc.client.ManageVPPLicensesByAdamIdSrv(options)
+	return svc.client.ManageVPPLicensesByAdamIdSrv(options.AdamIDStr, options)
 }
 
 type manageVPPLicensesByAdamIdSrvResponse struct {

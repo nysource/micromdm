@@ -1,8 +1,7 @@
 package config
 
 import (
-	"encoding/base64"
-	"encoding/json"
+	"log"
 
 	"github.com/micromdm/micromdm/vpp"
 )
@@ -11,34 +10,17 @@ const VPPTokenTopic = "mdm.VPPTokenAdded"
 
 type VPPToken struct {
 	UDID   string `json:"udid"`
-	SToken SToken `json:"sToken"`
-}
-
-type SToken struct {
-	OrgName string `json:"orgName"`
-	Token   string `json:"token"`
-	ExpDate string `json:"expDate"`
+	SToken string `json:"sToken"`
 }
 
 // create a VPP client from token.
-func (tok VPPToken) Client(serverURL string) (*vpp.Client, error) {
-
-	// Convert to JSON
-	tokenJSON, err := json.Marshal(tok.SToken)
+func (tok VPPToken) Client() (*vpp.Client, error) {
+	log.Printf("vppToken: %s\n", tok.SToken)
+	client, err := vpp.NewClient(tok.SToken)
 	if err != nil {
+		log.Printf("vppToken err: %s\n", err)
 		return nil, err
 	}
-	// Encode Base64
-	sToken := base64.StdEncoding.EncodeToString(tokenJSON)
-
-	conf := vpp.VPPToken{
-		UDID:   tok.UDID,
-		SToken: sToken,
-	}
-
-	client, err := vpp.NewClient(conf, serverURL)
-	if err != nil {
-		return nil, err
-	}
+	log.Printf("vppToken OK: %s\n", client)
 	return client, nil
 }

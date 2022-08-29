@@ -67,6 +67,8 @@ func (cmd *applyCommand) Run(args []string) error {
 		run = cmd.applyApp
 	case "vpp-apps", "vpp-app":
 		run = cmd.applyVPPApp
+	case "vpp-token":
+		run = cmd.applyVPPToken
 	case "block":
 		run = cmd.applyBlock
 	case "users":
@@ -94,6 +96,7 @@ Valid resource types:
   * dep-autoassigner
   * app
   * vpp-app
+  * vpp-token
   * block
 
 Examples:
@@ -185,7 +188,7 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 	}
 
 	if *flTokenPath == "" {
-		return errors.New("must provide -import-token parameter")
+		return errors.New("must provide -import parameter")
 	}
 	if _, err := os.Stat(*flTokenPath); os.IsNotExist(err) {
 		return err
@@ -200,6 +203,39 @@ func (cmd *applyCommand) applyDEPTokens(args []string) error {
 		return err
 	}
 	fmt.Println("imported DEP token")
+	return nil
+}
+
+func (cmd *applyCommand) applyVPPToken(args []string) error {
+	flagset := flag.NewFlagSet("vpp-token", flag.ExitOnError)
+	var (
+		flTokenPath = flagset.String(
+			"import",
+			filepath.Join(defaultmdmctlFilesPath, "sToken_for_.vpptoken"),
+			"Filename of token file (downloaded from ABM or ASM portal)")
+	)
+
+	flagset.Usage = usageFor(flagset, "mdmctl apply vpp-token [flags]")
+	if err := flagset.Parse(args); err != nil {
+		return err
+	}
+
+	if *flTokenPath == "" {
+		return errors.New("must provide -import parameter")
+	}
+	if _, err := os.Stat(*flTokenPath); os.IsNotExist(err) {
+		return err
+	}
+	bytes, err := ioutil.ReadFile(*flTokenPath)
+	if err != nil {
+		return err
+	}
+	ctx := context.Background()
+	err = cmd.configsvc.ApplyVPPToken(ctx, bytes)
+	if err != nil {
+		return err
+	}
+	fmt.Println("imported VPP token")
 	return nil
 }
 

@@ -1,11 +1,9 @@
 package vpp
 
-import (
-	"github.com/pkg/errors"
-)
+import "github.com/pkg/errors"
 
 // Contains information about the VPP Assets associated with a VPP account token
-type AssetsSrv struct {
+type VPPAssetsSrv struct {
 	TotalCount    int      `json:"totalCount"`
 	Status        int      `json:"status"`
 	Assets        []Asset  `json:"assets"`
@@ -28,31 +26,28 @@ type Asset struct {
 	TotalCount       int    `json:"totalCount,omitempty"`
 }
 
-type AssetsSrvOptions struct {
-	IncludeLicenseCounts bool   `json:"includeLicenseCounts,omitempty"`
-	SToken               string `json:"sToken,omitempty"`
-	PricingParam         string `json:"pricingParam,omitempty"`
-	FacilitatorMemberID  string `json:"facilitatorMemberId,omitempty"`
-}
-
 // Gets information about the VPP Assets associated with a VPP Account token
-func (c *Client) GetAssetsSrv(options AssetsSrvOptions) (*AssetsSrv, error) {
-
-	if options.SToken == "" {
-		options.SToken = c.VPPToken.SToken
+func (c *Client) GetVPPAssetsSrv() (*VPPAssetsSrv, error) {
+	// Send the sToken string
+	request := struct {
+		SToken               string `json:"sToken"`
+		IncludeLicenseCounts bool   `json:"includeLicenseCounts"`
+	}{
+		SToken:               c.SToken,
+		IncludeLicenseCounts: true,
 	}
 
 	// Get the VPPAssetsSrvURL
-	VPPAssetsSrvURL := c.ServiceConfigSrv.GetVPPAssetsSrvURL
+	VPPAssetsSrvURL := c.VPPServiceConfigSrv.GetVPPAssetsSrvURL
 
 	// Create the VPPAssetsSrv request
-	req, err := c.newRequest("POST", VPPAssetsSrvURL, options)
+	req, err := c.newRequest("POST", VPPAssetsSrvURL, request)
 	if err != nil {
 		return nil, errors.Wrap(err, "create VPPAssetsSrv request")
 	}
 
 	// Make the request
-	var response AssetsSrv
+	var response VPPAssetsSrv
 	err = c.do(req, &response)
 
 	return &response, errors.Wrap(err, "get VPPAssetsSrv request")
@@ -61,7 +56,7 @@ func (c *Client) GetAssetsSrv(options AssetsSrvOptions) (*AssetsSrv, error) {
 // Gets the pricing param for a particular VPP asset
 func (c *Client) GetPricingParamForApp(appID string) (string, error) {
 	// Get a list of assets
-	response, err := c.GetAssetsSrv(AssetsSrvOptions{})
+	response, err := c.GetVPPAssetsSrv()
 	if err != nil {
 		return "", err
 	}

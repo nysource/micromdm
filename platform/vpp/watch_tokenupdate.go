@@ -9,7 +9,7 @@ import (
 	"github.com/micromdm/micromdm/platform/pubsub"
 )
 
-func (svc *VPPService) watchTokenUpdates(pubsub pubsub.Subscriber, serverURL string) error {
+func (svc *VPPService) watchTokenUpdates(pubsub pubsub.Subscriber) error {
 	tokenAdded, err := pubsub.Subscribe(context.TODO(), "list-token-events", config.VPPTokenTopic)
 	if err != nil {
 		return err
@@ -25,7 +25,7 @@ func (svc *VPPService) watchTokenUpdates(pubsub pubsub.Subscriber, serverURL str
 					continue
 				}
 
-				client, err := token.Client(serverURL)
+				client, err := token.Client()
 				if err != nil {
 					log.Printf("creating new VPP client: %s\n", err)
 					continue

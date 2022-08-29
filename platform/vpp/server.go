@@ -11,34 +11,34 @@ import (
 type Endpoints struct {
 	GetVPPAppsEndpoint                   endpoint.Endpoint
 	GetContentMetadataEndpoint           endpoint.Endpoint
-	GetAssetsSrvEndpoint                 endpoint.Endpoint
+	GetVPPAssetsSrvEndpoint              endpoint.Endpoint
 	GetLicensesSrvEndpoint               endpoint.Endpoint
 	ManageVPPLicensesByAdamIdSrvEndpoint endpoint.Endpoint
-	GetServiceConfigSrvEndpoint          endpoint.Endpoint
+	GetVPPServiceConfigSrvEndpoint       endpoint.Endpoint
 }
 
 func MakeServerEndpoints(s Service, outer endpoint.Middleware, others ...endpoint.Middleware) Endpoints {
 	return Endpoints{
 		GetVPPAppsEndpoint:                   endpoint.Chain(outer, others...)(MakeGetVPPAppsEndpoint(s)),
 		GetContentMetadataEndpoint:           endpoint.Chain(outer, others...)(MakeGetContentMetadataEndpoint(s)),
-		GetAssetsSrvEndpoint:                 endpoint.Chain(outer, others...)(MakeGetAssetsSrvEndpoint(s)),
+		GetVPPAssetsSrvEndpoint:              endpoint.Chain(outer, others...)(MakeGetVPPAssetsSrvEndpoint(s)),
 		GetLicensesSrvEndpoint:               endpoint.Chain(outer, others...)(MakeGetLicensesSrvEndpoint(s)),
 		ManageVPPLicensesByAdamIdSrvEndpoint: endpoint.Chain(outer, others...)(MakeManageVPPLicensesByAdamIdSrvEndpoint(s)),
-		GetServiceConfigSrvEndpoint:          endpoint.Chain(outer, others...)(MakeGetServiceConfigSrvEndpoint(s)),
+		GetVPPServiceConfigSrvEndpoint:       endpoint.Chain(outer, others...)(MakeGetVPPServiceConfigSrvEndpoint(s)),
 	}
 }
 
 func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.ServerOption) {
-	// GET    /v1/vpp/apps            list selected useful vpp app information
-	// POST   /v1/vpp/apps            list selected useful vpp app information for select apps
-	// POST		/v1/vpp/metadata		    list metadata for a vpp app
-	// GET		/v1/vpp/assets	        list all vpp assets
-	// POST		/v1/vpp/assets		      list vpp assets with options
-	// GET		/v1/vpp/licenses		    list all vpp licenses
-	// POST		/v1/vpp/licenses		    list vpp licenses with options
-	// PUT		/v1/vpp/licenses				manage vpp licenses
-	// GET		/v1/vpp/serviceconfig		get vpp service config information
-	// POST		/v1/vpp/serviceconfig		get vpp service config information with options
+	// GET		/v1/vpp/apps			list selected useful vpp app information
+	// POST		/v1/vpp/apps			list selected useful vpp app information for select apps
+	// POST		/v1/vpp/metadata		list metadata for a vpp app
+	// GET		/v1/vpp/assets			list all vpp assets
+	// POST		/v1/vpp/assets			list vpp assets with options
+	// GET		/v1/vpp/licenses		list all vpp licenses
+	// POST		/v1/vpp/licenses		list vpp licenses with options
+	// PUT		/v1/vpp/licenses		manage vpp licenses
+	// GET		/v1/vpp/serviceconfig	get vpp service config information
+	// POST		/v1/vpp/serviceconfig	get vpp service config information with options
 
 	r.Methods("GET").Path("/v1/vpp/apps").Handler(httptransport.NewServer(
 		e.GetVPPAppsEndpoint,
@@ -62,15 +62,15 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	))
 
 	r.Methods("GET").Path("/v1/vpp/assets").Handler(httptransport.NewServer(
-		e.GetAssetsSrvEndpoint,
-		decodeGetAssetsSrvRequest,
+		e.GetVPPAssetsSrvEndpoint,
+		decodeGetVPPAssetsSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
 	r.Methods("POST").Path("/v1/vpp/assets").Handler(httptransport.NewServer(
-		e.GetAssetsSrvEndpoint,
-		decodeGetAssetsSrvRequest,
+		e.GetVPPAssetsSrvEndpoint,
+		decodeGetVPPAssetsSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
@@ -97,14 +97,14 @@ func RegisterHTTPHandlers(r *mux.Router, e Endpoints, options ...httptransport.S
 	))
 
 	r.Methods("GET").Path("/v1/vpp/serviceconfig").Handler(httptransport.NewServer(
-		e.GetServiceConfigSrvEndpoint,
+		e.GetVPPServiceConfigSrvEndpoint,
 		decodeGetServiceConfigSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,
 	))
 
 	r.Methods("POST").Path("/v1/vpp/serviceconfig").Handler(httptransport.NewServer(
-		e.GetServiceConfigSrvEndpoint,
+		e.GetVPPServiceConfigSrvEndpoint,
 		decodeGetServiceConfigSrvRequest,
 		httputil.EncodeJSONResponse,
 		options...,

@@ -49,3 +49,5 @@ require (
 )
 
 go 1.17
+
+replace github.com/micromdm/micromdm => github.com/nysource/micromdm v1.4.1-0.20220907074018-5f10a9eec5c0
