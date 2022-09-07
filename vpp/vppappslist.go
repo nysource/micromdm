@@ -1,4 +1,5 @@
 package vpp
+
 import (
 	"encoding/json"
 	"strings"
