@@ -3,8 +3,8 @@ package enroll
 import (
 	"bytes"
 	"crypto/x509"
+	"fmt"
 	"io/ioutil"
-	"log"
 	"strings"
 	"sync"
 
@@ -102,7 +102,7 @@ func updateTopic(svc *service, sub pubsub.Subscriber) error {
 			case <-configEvents:
 				topic, err := svc.topicProvier.PushTopic()
 				if err != nil {
-					log.Printf("enroll: get push topic %s\n", topic)
+					fmt.Printf("enroll: get push topic %s\n", topic)
 				}
 				svc.mu.Lock()
 				svc.Topic = topic

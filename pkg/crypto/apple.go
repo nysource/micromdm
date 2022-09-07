@@ -101,7 +101,7 @@ func VerifyFromAppleDeviceCA(c *x509.Certificate) error {
 	}
 	parent, err := x509.ParseCertificate(block.Bytes)
 	if err != nil {
-		panic(fmt.Sprintf("appleiPhoneDeviceCAPEM: err parsing: %s", err))
+		panic(fmt.Sprintf("appleiPhoneDeviceCAPEM: err parsing: %v", err))
 	}
 	// Note we CheckSignatureFrom() as we cannot Verify the certificate chain
 	// (known expired intermediate)

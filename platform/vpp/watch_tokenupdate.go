@@ -3,7 +3,7 @@ package vpp
 import (
 	"context"
 	"encoding/json"
-	"log"
+	"fmt"
 
 	"github.com/micromdm/micromdm/platform/config"
 	"github.com/micromdm/micromdm/platform/pubsub"
@@ -21,13 +21,13 @@ func (svc *VPPService) watchTokenUpdates(pubsub pubsub.Subscriber) error {
 			case event := <-tokenAdded:
 				var token config.VPPToken
 				if err := json.Unmarshal(event.Message, &token); err != nil {
-					log.Printf("unmarshalling tokenAdded to token: %s\n", err)
+					fmt.Printf("unmarshalling tokenAdded to token: %v\n", err)
 					continue
 				}
 
 				client, err := token.Client()
 				if err != nil {
-					log.Printf("creating new VPP client: %s\n", err)
+					fmt.Printf("creating new VPP client: %v\n", err)
 					continue
 				}
 

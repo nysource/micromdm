@@ -23,17 +23,17 @@ func TestSave(t *testing.T) {
 	ctx := context.Background()
 
 	if err := db.Save(ctx, dev); err != nil {
-		t.Fatalf("saving device in datastore: %s", err)
+		t.Fatalf("saving device in datastore: %v", err)
 	}
 
 	byUDID, err := db.DeviceByUDID(ctx, dev.UDID)
 	if err != nil {
-		t.Fatalf("getting device by UDID: %s", err)
+		t.Fatalf("getting device by UDID: %v", err)
 	}
 
 	bySerial, err := db.DeviceBySerial(ctx, dev.SerialNumber)
 	if err != nil {
-		t.Fatalf("getting device by UDID: %s", err)
+		t.Fatalf("getting device by UDID: %v", err)
 	}
 
 	// test helper that verifies that the retrieved device is the same
@@ -77,12 +77,12 @@ func TestGetBootstrapToken(t *testing.T) {
 	ctx := context.Background()
 
 	if err := db.Save(ctx, dev); err != nil {
-		t.Fatalf("saving device in datastore: %s", err)
+		t.Fatalf("saving device in datastore: %v", err)
 	}
 
 	haveDev, err := db.DeviceByUDID(ctx, dev.UDID)
 	if err != nil {
-		t.Fatalf("getting device by UDID: %s", err)
+		t.Fatalf("getting device by UDID: %v", err)
 	}
 
 	if have, want := haveDev.BootstrapToken, dev.BootstrapToken; bytes.Compare(have, want) != 0 {
@@ -101,11 +101,11 @@ func TestDeleteByUDID(t *testing.T) {
 	ctx := context.Background()
 
 	if err := db.Save(ctx, dev); err != nil {
-		t.Fatalf("saving device in datastore: %s", err)
+		t.Fatalf("saving device in datastore: %v", err)
 	}
 
 	if err := db.DeleteByUDID(ctx, dev.UDID); err != nil {
-		t.Fatalf("deleting device in datastore: %s", err)
+		t.Fatalf("deleting device in datastore: %v", err)
 	}
 
 	byUDID, _ := db.DeviceByUDID(ctx, dev.UDID)
@@ -126,11 +126,11 @@ func TestDeleteBySerial(t *testing.T) {
 	ctx := context.Background()
 
 	if err := db.Save(ctx, dev); err != nil {
-		t.Fatalf("saving device in datastore: %s", err)
+		t.Fatalf("saving device in datastore: %v", err)
 	}
 
 	if err := db.DeleteBySerial(ctx, dev.SerialNumber); err != nil {
-		t.Fatalf("deleting device in datastore: %s", err)
+		t.Fatalf("deleting device in datastore: %v", err)
 	}
 
 	byUDID, _ := db.DeviceBySerial(ctx, dev.SerialNumber)
@@ -146,11 +146,11 @@ func setupDB(t *testing.T) *DB {
 
 	db, err := bolt.Open(f.Name(), 0777, nil)
 	if err != nil {
-		t.Fatalf("couldn't open bolt, err %s\n", err)
+		t.Fatalf("couldn't open bolt, err %v\n", err)
 	}
 	devDB, err := NewDB(db)
 	if err != nil {
-		t.Fatalf("couldn't create device DB, err %s\n", err)
+		t.Fatalf("couldn't create device DB, err %v\n", err)
 	}
 	return devDB
 }

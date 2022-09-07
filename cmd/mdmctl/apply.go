@@ -298,7 +298,7 @@ func loadSigningKey(keyPass, keyPath, certPath string) (crypto.PrivateKey, *x509
 	if x509.IsEncryptedPEMBlock(keyDataBlock) {
 		b, err := x509.DecryptPEMBlock(keyDataBlock, []byte(keyPass))
 		if err != nil {
-			return nil, nil, fmt.Errorf("decrypting DES private key %s", err)
+			return nil, nil, fmt.Errorf("decrypting DES private key %v", err)
 		}
 		pemKeyData = b
 	} else {

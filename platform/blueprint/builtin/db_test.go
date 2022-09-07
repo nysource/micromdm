@@ -35,7 +35,7 @@ func TestSave(t *testing.T) {
 	bp.UUID = "a-b-c-d"
 	bp.Name = "blueprint"
 	if err := db.Save(bp); err != nil {
-		t.Fatalf("saving blueprint in datastore: %s", err)
+		t.Fatalf("saving blueprint in datastore: %v", err)
 	}
 
 	bp.UUID = "e-f-g-h"
@@ -47,12 +47,12 @@ func TestSave(t *testing.T) {
 	bp.UUID = "e-f-g-h"
 	bp.Name = "blueprint2"
 	if err := db.Save(bp); err != nil {
-		t.Fatalf("saving blueprint2 in datastore: %s", err)
+		t.Fatalf("saving blueprint2 in datastore: %v", err)
 	}
 
 	byName, err := db.BlueprintByName("blueprint")
 	if err != nil {
-		t.Fatalf("getting blueprint by Name: %s", err)
+		t.Fatalf("getting blueprint by Name: %v", err)
 	}
 	if byName == nil || byName.UUID != "a-b-c-d" {
 		t.Fatalf("have %s, want %s", byName.UUID, "a-b-c-d")
@@ -60,7 +60,7 @@ func TestSave(t *testing.T) {
 
 	byApplyAt, err := db.BlueprintsByApplyAt(context.Background(), "Enroll")
 	if err != nil {
-		t.Fatalf("getting blueprint by ApplyAt: %s", err)
+		t.Fatalf("getting blueprint by ApplyAt: %v", err)
 	}
 	if len(byApplyAt) != 2 {
 		t.Fatalf("multiple blueprints not saved correctly")
@@ -79,16 +79,16 @@ func TestList(t *testing.T) {
 	}
 
 	if err := db.Save(bp1); err != nil {
-		t.Fatalf("saving blueprint-1 to datastore: %s", err)
+		t.Fatalf("saving blueprint-1 to datastore: %v", err)
 	}
 
 	if err := db.Save(bp2); err != nil {
-		t.Fatalf("saving blueprint-2 to datastore: %s", err)
+		t.Fatalf("saving blueprint-2 to datastore: %v", err)
 	}
 
 	bps, err := db.List()
 	if err != nil {
-		t.Fatalf("listing blueprints: %s", err)
+		t.Fatalf("listing blueprints: %v", err)
 	}
 	if len(bps) != 2 {
 		t.Fatalf("expected %d, found %d", 2, len(bps))
@@ -103,16 +103,16 @@ func TestDelete(t *testing.T) {
 	}
 
 	if err := db.Save(bp1); err != nil {
-		t.Fatalf("saving blueprint to datastore: %s", err)
+		t.Fatalf("saving blueprint to datastore: %v", err)
 	}
 
 	if err := db.Delete("blueprint"); err != nil {
-		t.Fatalf("deleting blueprint in datastore: %s", err)
+		t.Fatalf("deleting blueprint in datastore: %v", err)
 	}
 
 	_, err := db.BlueprintByName("blueprint")
 	if err == nil {
-		t.Fatalf("expected blueprint to be deleted: %s", err)
+		t.Fatalf("expected blueprint to be deleted: %v", err)
 	}
 }
 
@@ -123,16 +123,16 @@ func setupDB(t *testing.T) *DB {
 
 	db, err := bolt.Open(f.Name(), 0777, nil)
 	if err != nil {
-		t.Fatalf("couldn't open bolt, err %s\n", err)
+		t.Fatalf("couldn't open bolt, err %v\n", err)
 	}
 	profileDB, err := profile.NewDB(db)
 	if err != nil {
-		t.Fatalf("couldn't create profile DB, err %s\n", err)
+		t.Fatalf("couldn't create profile DB, err %v\n", err)
 	}
 
 	blueprintDB, err := NewDB(db, profileDB)
 	if err != nil {
-		t.Fatalf("couldn't create blueprint DB, err %s\n", err)
+		t.Fatalf("couldn't create blueprint DB, err %v\n", err)
 	}
 	return blueprintDB
 }

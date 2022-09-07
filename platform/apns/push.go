@@ -108,7 +108,7 @@ func expiration(s string) (time.Time, error) {
 
 	i, err := strconv.ParseInt(s, 10, 64)
 	if err != nil {
-		return time.Time{}, fmt.Errorf("parsing expiration time: %s", err)
+		return time.Time{}, fmt.Errorf("parsing expiration time: %v", err)
 	}
 	return time.Unix(i, 0).UTC(), nil
 }

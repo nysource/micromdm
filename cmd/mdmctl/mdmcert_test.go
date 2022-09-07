@@ -10,12 +10,12 @@ func TestLoadPushCerts(t *testing.T) {
 
 	_, _, err := loadPushCerts(certpath, keypath, keysecret)
 	if err != nil {
-		t.Errorf("failed to load PEM push certs with err %s", err)
+		t.Errorf("failed to load PEM push certs with err %v", err)
 	}
 
 	// try to load from p12
 	_, _, err = loadPushCerts(p12path, "", keysecret)
 	if err != nil {
-		t.Errorf("failed to load p12 push certs with err %s", err)
+		t.Errorf("failed to load p12 push certs with err %v", err)
 	}
 }

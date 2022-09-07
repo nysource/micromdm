@@ -32,7 +32,7 @@ func TestNext_Error(t *testing.T) {
 	for range dc.Commands {
 		cmd, err := store.nextCommand(ctx, resp)
 		if err != nil {
-			t.Fatalf("expected nil, but got err: %s", err)
+			t.Fatalf("expected nil, but got err: %v", err)
 		}
 		if cmd == nil {
 			t.Fatal("expected cmd but got nil")
@@ -66,7 +66,7 @@ func TestNext_NotNow(t *testing.T) {
 		cmd, err := store.nextCommand(ctx, resp)
 
 		if err != nil {
-			t.Fatalf("expected nil, but got err: %s", err)
+			t.Fatalf("expected nil, but got err: %v", err)
 		}
 
 		resp = mdm.Response{
@@ -77,7 +77,7 @@ func TestNext_NotNow(t *testing.T) {
 
 		cmd, err = store.nextCommand(ctx, resp)
 		if err != nil {
-			t.Fatalf("expected nil, but got err: %s", err)
+			t.Fatalf("expected nil, but got err: %v", err)
 		}
 		if cmd != nil {
 			t.Error("Got back a notnowed command.")
@@ -113,7 +113,7 @@ func TestNext_Idle(t *testing.T) {
 	for i := range dc.Commands {
 		cmd, err := store.nextCommand(ctx, resp)
 		if err != nil {
-			t.Fatalf("expected nil, but got err: %s", err)
+			t.Fatalf("expected nil, but got err: %v", err)
 		}
 		if cmd == nil {
 			t.Fatal("expected cmd but got nil")
@@ -145,7 +145,7 @@ func TestNext_zeroCommands(t *testing.T) {
 			resp := mdm.Response{CommandUUID: s, Status: s}
 			cmd, err := store.nextCommand(ctx, resp)
 			if err != nil {
-				t.Errorf("expected nil, but got err: %s", err)
+				t.Errorf("expected nil, but got err: %v", err)
 			}
 			if cmd != nil {
 				t.Errorf("expected nil cmd but got %s", cmd.UUID)
@@ -164,7 +164,7 @@ func setupDB(t *testing.T) (*Store, func()) {
 
 	db, err := bolt.Open(f.Name(), 0777, nil)
 	if err != nil {
-		t.Fatalf("couldn't open bolt, err %s\n", err)
+		t.Fatalf("couldn't open bolt, err %v\n", err)
 	}
 	err = db.Update(func(tx *bolt.Tx) error {
 		_, err := tx.CreateBucketIfNotExists([]byte(DeviceCommandBucket))

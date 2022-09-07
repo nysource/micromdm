@@ -8,7 +8,7 @@ func TestTopicFromValidCert(t *testing.T) {
 	certificate, _ := ReadPEMCertificateFile("testdata/mock_push_cert.pem")
 	pushTopic, err := TopicFromCert(certificate)
 	if err != nil {
-		t.Fatalf("fail %s", err)
+		t.Fatalf("fail %v", err)
 	}
 
 	if have, want := pushTopic, "com.apple.mgmt.External.18a16429-886b-41f1-9c30-2bd04ae4fc37"; have != want {

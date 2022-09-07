@@ -271,7 +271,7 @@ func loadPushCerts(certPath, keyPath, keyPass string) (cert, key []byte, err err
 	if x509.IsEncryptedPEMBlock(keyDataBlock) {
 		b, err := x509.DecryptPEMBlock(keyDataBlock, []byte(keyPass))
 		if err != nil {
-			return nil, nil, fmt.Errorf("decrypting DES private key %s", err)
+			return nil, nil, fmt.Errorf("decrypting DES private key %v", err)
 		}
 		pemKeyData = b
 	} else {

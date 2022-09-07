@@ -1,7 +1,7 @@
 package config
 
 import (
-	"log"
+	"fmt"
 
 	"github.com/micromdm/micromdm/vpp"
 )
@@ -15,12 +15,12 @@ type VPPToken struct {
 
 // create a VPP client from token.
 func (tok VPPToken) Client() (*vpp.Client, error) {
-	log.Printf("vppToken: %s\n", tok.SToken)
+	fmt.Printf("vppToken: %s\n", tok.SToken)
 	client, err := vpp.NewClient(tok.SToken)
 	if err != nil {
-		log.Printf("vppToken err: %s\n", err)
+		fmt.Printf("vppToken err: %v\n", err)
 		return nil, err
 	}
-	log.Printf("vppToken OK: %s\n", client)
+	fmt.Printf("vppToken OK: %v\n", client)
 	return client, nil
 }
