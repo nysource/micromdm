@@ -20,6 +20,7 @@ type ListDevicesOption struct {
 
 type DeviceDTO struct {
 	SerialNumber     string           `json:"serial_number"`
+	DeviceName       string           `json:"device_name"`
 	UDID             string           `json:"udid"`
 	EnrollmentStatus bool             `json:"enrollment_status"`
 	LastSeen         time.Time        `json:"last_seen"`
@@ -32,6 +33,7 @@ func (svc *DeviceService) ListDevices(ctx context.Context, opt ListDevicesOption
 	for _, d := range devices {
 		dto = append(dto, DeviceDTO{
 			SerialNumber:     d.SerialNumber,
+			DeviceName:       d.DeviceName,
 			UDID:             d.UDID,
 			EnrollmentStatus: d.Enrolled,
 			LastSeen:         d.LastSeen,
