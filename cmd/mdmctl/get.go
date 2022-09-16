@@ -151,7 +151,7 @@ func (cmd *getCommand) getDevices(args []string) error {
 		return err
 	}
 	for _, d := range devices {
-		fmt.Fprintf(out.w, "%s\t%s\t%s\t%v\t%s\n", d.UDID, d.DeviceName, d.SerialNumber, d.EnrollmentStatus, d.LastSeen)
+		fmt.Fprintf(out.w, "%v\n", d)
 	}
 	return nil
 }
