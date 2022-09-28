@@ -138,6 +138,7 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 		dev.DEPProfileAssignTime = dd.ProfileAssignTime
 		dev.DEPProfileAssignedDate = dd.DeviceAssignedDate
 		dev.DEPProfileAssignedBy = dd.DeviceAssignedBy
+		dev.DeviceName = dd.DeviceName
 
 		if err := w.db.Save(ctx, dev); err != nil {
 			return errors.Wrap(err, "save device %s from DEP sync")
