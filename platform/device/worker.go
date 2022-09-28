@@ -139,10 +139,6 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 		dev.DEPProfileAssignTime = dd.ProfileAssignTime
 		dev.DEPProfileAssignedDate = dd.DeviceAssignedDate
 		dev.DEPProfileAssignedBy = dd.DeviceAssignedBy
-		dev.DeviceName = dd.DeviceName
-
-		fmt.Printf("dd: %+v\n", dd)
-		fmt.Printf("dev: %+v\n", dev)
 
 		if err := w.db.Save(ctx, dev); err != nil {
 			return errors.Wrap(err, "save device %s from DEP sync")
@@ -313,6 +309,8 @@ func (w *Worker) updateFromAuthenticate(ctx context.Context, message []byte) err
 	device.ModelName = ev.Command.ModelName
 	device.LastSeen = time.Now()
 	err = w.db.Save(ctx, device)
+	fmt.Printf("ev.Command: %+v\n", ev.Command)
+	fmt.Printf("ev.Command: %+v\n", device)
 	return errors.Wrapf(err, "saving updated device for authenticate event")
 }
 
