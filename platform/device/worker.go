@@ -2,6 +2,7 @@ package device
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/go-kit/kit/log"
@@ -139,6 +140,9 @@ func (w *Worker) updateFromDEPSync(ctx context.Context, message []byte) error {
 		dev.DEPProfileAssignedDate = dd.DeviceAssignedDate
 		dev.DEPProfileAssignedBy = dd.DeviceAssignedBy
 		dev.DeviceName = dd.DeviceName
+
+		fmt.Printf("dd: %+v\n", dd)
+		fmt.Printf("dev: %+v\n", dev)
 
 		if err := w.db.Save(ctx, dev); err != nil {
 			return errors.Wrap(err, "save device %s from DEP sync")
