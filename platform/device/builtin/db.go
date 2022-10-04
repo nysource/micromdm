@@ -66,6 +66,7 @@ func (db *DB) List(ctx context.Context, opt device.ListDevicesOption) ([]device.
 			if err := device.UnmarshalDevice(v, &dev); err != nil {
 				return err
 			}
+			fmt.Printf("device list: %+v\n", dev)
 			if len(opt.FilterSerial) == 0 {
 				devices = append(devices, dev)
 				return nil
@@ -90,6 +91,7 @@ func (db *DB) Save(ctx context.Context, dev *device.Device) error {
 	if bkt == nil {
 		return fmt.Errorf("bucket %q not found!", DeviceBucket)
 	}
+	fmt.Printf("device save: %+v\n", dev)
 	devproto, err := device.MarshalDevice(dev)
 	if err != nil {
 		return errors.Wrap(err, "marshalling device")
